@@ -38,3 +38,9 @@ gem 'spring',        group: :development
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
+gem 'devise'
+gem 'websocket-rails'
+
+gem 'foreman'
+
+gem 'mysql2', '~> 0.3.18'
