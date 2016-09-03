@@ -1,28 +1,47 @@
-== README
+# Push Chess Game
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## How to setup the development environment
 
-Things you may want to cover:
+### Requirements
 
-* Ruby version
+#### RVM
 
-* System dependencies
+```
+install rvm (ref: https://rvm.io/rvm/install)
+```
 
-* Configuration
+```
+curl -L https://get.rvm.io | bash -s stable --ruby
+```
 
-* Database creation
+#### Ruby 2.2.3
 
-* Database initialization
+```
+rvm install ruby-2.2.3
+```
 
-* How to run the test suite
+### Setup
 
-* Services (job queues, cache servers, search engines, etc.)
+Clone push-chessgame repo:
 
-* Deployment instructions
+```
+git clone https://github.com/misterwolf/push-chessgame && cd chessgame
+```
 
-* ...
+Install required gems:
 
+```
+gem install bundler && gem install foreman && bundle install
+```
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+Start development server:
+
+```
+rails s -p 3015
+```
+
+Or
+
+```
+foreman start
+```
