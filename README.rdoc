@@ -1,5 +1,12 @@
 # Push Chess Game
 
+### A simple project for playing to chess with another user online, trough the push notifications (with websocket-rails gem).
+## Idea is:
+# - list available user for play
+# - select your next challenger
+# - wait until he/she accepts request
+# - start to play.
+
 ## How to setup the development environment
 
 ### Requirements

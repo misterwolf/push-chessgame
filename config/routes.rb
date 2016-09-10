@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
 
+  resources :chesses
+
   match '/home',  to: 'home#index', :via => 'GET'
+  match '/play',  to: 'play#index', :via => 'GET'
 
   devise_for :users
 
