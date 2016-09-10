@@ -47,3 +47,7 @@ gem 'mysql2', '~> 0.3.18'
 
 gem 'bootstrap-sass', '~> 3.2.0'
 gem 'autoprefixer-rails'
+
+gem 'railties'
+
+gem 'mime-types-data', '~> 3.2016.0521'
