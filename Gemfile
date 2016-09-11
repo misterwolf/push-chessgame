@@ -52,5 +52,9 @@ gem 'railties'
 gem 'mime-types-data', '~> 3.2016.0521'
 
 group :development, :test do
-  gem "jasmine"
+  gem 'jasmine'
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'autotest'
+  gem 'autotest-standalone'
 end

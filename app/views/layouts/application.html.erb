@@ -19,6 +19,7 @@
       </ul>
     <ul class="nav navbar-nav navbar-right">
       <% if user_signed_in? %>
+         <li class="disabled"><a href="#">Welcome, <%= current_user.email %></a></li>
        	<li>
           <%= link_to 'Edit profile', edit_user_registration_path %>
        	</li>
