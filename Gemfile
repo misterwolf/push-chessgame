@@ -41,7 +41,6 @@ gem 'spring',        group: :development
 gem 'devise'
 gem 'websocket-rails'
 
-gem 'foreman'
 
 gem 'mysql2', '~> 0.3.18'
 
@@ -51,3 +50,7 @@ gem 'autoprefixer-rails'
 gem 'railties'
 
 gem 'mime-types-data', '~> 3.2016.0521'
+
+group :development, :test do
+  gem "jasmine"
+end
