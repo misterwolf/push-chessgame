@@ -4,7 +4,7 @@
   describe('Socket', function() {
     describe('Initializer', function() {
       describe('init function ', function() {
-        it('first', function() {
+        it('to be defined', function() {
           initializer.init();
           expect(initializer.dispatcher).toBeDefined();
         });
