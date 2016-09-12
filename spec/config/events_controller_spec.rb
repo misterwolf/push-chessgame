@@ -12,29 +12,25 @@ require 'rails_helper'
  # +          action.resume
  # +        end
 
-RSpec.describe WebsocketRails::EventMap, type: :controller do
+RSpec.describe WebsocketRails::EventMap do
 
-  describe 'Event Mapping for MyApp' do
+  describe 'Event Mapping for ChessGame' do
 
     describe 'socket.new_client_connected' do
 
+      # create_event's result is very different from be_routed_only_to's result.
       it 'should be routed correctly' do
         create_event('socket.new_client_connected', nil).should be_routed_only_to 'socket#new_client_connected'
       end
 
-      # it 'should trigger a success message on product.update' do
-      #   create_event('socket.new_client_connected', nil).dispatch.should trigger_success_message
+      # it "should trigger any message" do
+      #   event = create_event("socket.new_client_connected", :data => "some")
+      #   expect(event.dispatch).to trigger_success_message :any
       # end
-
-      it "should trigger any message" do
-        event = create_event("socket.new_client_connected", :data => "some")
-        expect(event.dispatch).to trigger_success_message :any
-      end
-
-      it 'should trigger a success message on product.update' do
-        create_event('product.update', nil).dispatch.should trigger_success_message
-      end
-
+      #
+      # it 'should trigger a success message on product.update' do
+      #  create_event('product.update', nil).dispatch.should trigger_success_message
+      # end
 
     end
 
