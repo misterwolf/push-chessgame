@@ -40,7 +40,8 @@ gem 'spring',        group: :development
 
 gem 'devise'
 gem 'websocket-rails'
-
+gem 'websocket-driver',  '0.5.1'
+gem 'faye-websocket', '0.10.0'  # was =< (0.10.4)
 
 gem 'mysql2', '~> 0.3.18'
 

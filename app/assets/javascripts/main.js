@@ -1,3 +1,3 @@
 /* global _chess */
 //= require namespace
-//= require socket/initializer
+//= require socket/Connection

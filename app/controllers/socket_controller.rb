@@ -14,11 +14,13 @@ class SocketController < WebsocketRails::BaseController
 
   def initialize_session
     # perform application setup here
+    puts 'initialize_session'
     controller_store[:message_count] = 0
   end
 
   def new_client_connected
     begin
+      puts 'new_client_connected'
       params['action'] = 'new_client_connected'
       params['content'] = [['id'=>current_user.id,'email'=> current_user.email]]
       WebsocketRails[:new_client_connected].trigger 'new_client_connected', response_message(params)

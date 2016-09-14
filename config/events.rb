@@ -14,11 +14,9 @@ WebsocketRails::EventMap.describe do
 
   # The :new_client_connected method is fired automatically when a new client connects
 
-  namespace :product do
-    subscribe :new_client_connected, :to => SocketController, :with_method => :new_client_connected
-    subscribe :get_all_clients, :to => SocketController, :with_method => :get_all_clients
-    # The :client_disconnected method is fired automatically when a client disconnects
-    subscribe :client_disconnected, :to => SocketController, :with_method => :client_disconnected
-  end
+  subscribe :new_client_connected, :to => SocketController, :with_method => :new_client_connected
+  subscribe :get_all_clients, :to => SocketController, :with_method => :get_all_clients
+  # The :client_disconnected method is fired automatically when a client disconnects
+  subscribe :client_disconnected, :to => SocketController, :with_method => :client_disconnected
 
 end
