@@ -54,6 +54,7 @@ gem 'mime-types-data', '~> 3.2016.0521'
 
 group :development, :test do
   gem 'jasmine'
+  gem 'jasmine-jquery-rails'
   gem 'rspec'
   gem 'rspec-rails'
   gem 'autotest'
