@@ -7,15 +7,19 @@
   'use strict';
 
   // TO DO:
-  // 1 IN FUTURE DELETE THIS MESSAGE
-  // 2 MOVE ALL THE HTML REFERENCES IN THIS FILE IN ANOTHER SEPARATE ONE.
+  // 1 IN FUTURE DELETE THE WELCOME AND GOOD BYE MESSAGES
+  // 2 MOVE ALL THE HTML REFERENCES FROM THIS FILE IN ANOTHER SEPARATE ONE.
   // 2.1 LIKE: CONSTANTS AND DOM.ID|CLASSES!
-  // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE! 
-  var DIV_ID_WELCOME_USER = 'welcome_user';
-  var DIV_ID_GOODBYE_USER = 'goodbye_user';
-  var MESSAGE_FOR_WELCOME = 'Welcome user! :)';
-  var MESSAGE_FOR_GOODBYE = 'Goodbye user! :)';
+  // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE!
+  // 2.3 naturally, it's better that elements id must be variables.
+  connection.DIV_ID_WELCOME_USER = 'welcome_user';
+  connection.DIV_ID_GOODBYE_USER = 'goodbye_user';
+  connection.CONTAINER_ALL_CLIENTS = 'all_clients';
+
+  connection.MESSAGE_FOR_WELCOME = 'Welcome user! :)';
+  connection.MESSAGE_FOR_GOODBYE = 'Goodbye user! :)';
   // ----
+  var userId = null;
 
   connection.dispatcher = null;
   connection.opened = false;
@@ -24,6 +28,8 @@
 
   connection.init = function(params){
     params = params || {};
+    userId = params.user_id;
+    if (userId) {return;}
     if (typeof params.url !== 'string' && params.url === '') { return;}
     this.dispatcher = new WebSocketRails(params.url);
     var channel = this.dispatcher.subscribe('new_client_connected');
@@ -47,26 +53,28 @@
 
   connection.disconnect = function(data){
     connection.dispatcher.connection_closed();
-    console.log('hello');
   };
 
   var onOpen = function(data){
-    dom.id(DIV_ID_WELCOME_USER).innerHTML = MESSAGE_FOR_WELCOME;
+    dom.id(connection.DIV_ID_WELCOME_USER).innerHTML = connection.MESSAGE_FOR_WELCOME;
+    var elem = dom.createElement('div',userId);
+    var target = dom.id('all_clients');
+    dom.insertElement(elem,target);
   };
 
   var onClose = function(){
-    dom.id(DIV_ID_GOODBYE_USER).innerHTML = MESSAGE_FOR_GOODBYE;
+    var elem = dom.id(connection.DIV_ID_GOODBYE_USER);
+    elem.innerHTML = connection.MESSAGE_FOR_GOODBYE;
+    var elemToRemove = dom.id(userId);
+    dom.remove(elemToRemove);
   };
 
   var onError = function(data){
     console.log('on error' + data);
   };
 
-  connection.channel = function(){
-
-  };
-
-  connection.send = function(){
+  connection.send = function(params){
+    params = params || {};
     // TO DO:
   };
 

@@ -5,8 +5,10 @@ jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
 (function(connection, dom){
 
   describe('Socket', function() {
+    var user_id = 'test-id';
     var stub = {
-      url: 'localhost:3001/websocket'
+      url: 'localhost:3001/websocket',
+      user_id: user_id
     };
 
     describe('Connection', function() {
@@ -53,8 +55,15 @@ jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
           describe('onOpen', function(){
             it('welcome message is set', function(done) {
               setTimeout(function(){
-                // toContain is more generic: a day i will decide to insert into 'welcome_user' div some other elements.
+                // TO DO: toContain is more generic: a day i will decide to insert into 'welcome_user' div some other elements.
+                // it's better move html checks in Connection in another class.
                 expect( $('#welcome_user').html() ).toContain('Welcome user! :)');
+                done();
+              }, 300);
+            });
+            it('client is added to dom',function(done){
+              setTimeout(function(){
+                expect( $('#all_clients').children().length ).toBe(1);
                 done();
               }, 200);
             });
@@ -63,13 +72,17 @@ jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
             it('goodbye message is set', function(done) {
               connection.disconnect();
               setTimeout(function(){
-                // toContain is more generic: a day i will decide to insert into 'welcome_user' div some other elements.
-                expect( $('#goodbye_user').html() ).not.toContain('Goodbye user! :)');
+                expect( $('#goodbye_user').html() ).toContain('Goodbye user! :)');
                 done();
               }, 200);
             });
-            // it('all clients container emptied', function() {
-            // });
+            it('all clients container emptied', function() {
+              var prevLength = $('#all_clients').children().length;
+              connection.disconnect();
+              setTimeout(function(){
+                expect($('#all_clients').children().length).toBe(prevLength - 1);
+              });
+            });
           });
           // describe('onReceiveMessage', function(){
           //   it('remove element from all users', function() {

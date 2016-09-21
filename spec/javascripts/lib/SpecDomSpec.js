@@ -30,5 +30,56 @@
       });
     });
 
+    describe('remove',function(){
+      var elem_id = 'element_to_remove';
+      it('return no elements after deleting',function(){
+        var elem = dom.id(elem_id);
+        expect(dom.remove(elem)).toBe(0);
+      });
+      it('does not fail if param is wrong',function(){
+        console.log(dom.remove(elem_id + '_nulling'));
+        expect(dom.remove(elem_id + '_nulling')).toBe(undefined);
+      });
+    });
+
+    describe('createElement',function(){
+      var elem = null;
+      var tag = 'div';
+      it('tag is div',function(){
+        elem = dom.createElement(tag);
+        expect(elem.tagName).toBe(tag.toUpperCase());
+      });
+      describe('with class name',function(){
+        var testClass = 'test-class';
+        beforeEach(function(){
+          elem = dom.createElement(tag, null, testClass);
+        });
+        it('element has class',function(){
+          expect(elem.className).toBe(testClass);
+        });
+      });
+      describe('with id',function(){
+        var id = 'id-class';
+        beforeEach(function(){
+          elem = dom.createElement(tag, id);
+        });
+        it('element has class',function(){
+          expect(elem.id).toBe(id);
+        });
+      });
+
+      describe('with both',function(){
+        var id = 'id-class';
+        var testClass = 'test-class';
+        beforeEach(function(){
+          elem = dom.createElement(tag, id, testClass);
+        });
+        it('element has id and class',function(){
+          expect(elem.className).toBe(testClass);
+          expect(elem.id).toBe(id);
+        });
+      });
+    });
+
   });
 })(window._chess.lib.dom);
