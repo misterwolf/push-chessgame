@@ -1,52 +1,114 @@
 //= require websocket_rails/main
 //= require namespace
 //= require socket/namespace
+//= require lib/dom
 
-(function(connection){
+(function(connection, dom){
   'use strict';
 
+  // TO DO:
+  // 1 IN FUTURE DELETE THE WELCOME AND GOOD BYE MESSAGES
+  // 2 MOVE ALL THE HTML REFERENCES FROM THIS FILE IN ANOTHER SEPARATE ONE.
+  // 2.1 LIKE: CONSTANTS AND DOM.ID|CLASSES!
+  // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE!
+  // 2.3 naturally, it's better that elements id must be variables.
+
+  connection.DIV_ID_WELCOME_USER = 'welcome_user';
+  connection.DIV_ID_GOODBYE_USER = 'goodbye_user';
+  connection.CONTAINER_ALL_CLIENTS = 'all_clients';
+
+  connection.MESSAGE_FOR_WELCOME = 'Welcome user! :)';
+  connection.MESSAGE_FOR_GOODBYE = 'Goodbye user! :)';
+
+  var channels = [
+    'new_client_connected',
+    'get_all_clients'
+  ];
+  connection.state = 'init';
+  // ----
+  var userId = null;
+  connection.channels = channels;
   connection.dispatcher = null;
   connection.opened = false;
 
   connection.init = function(params, cb){
-    params = params || {};
+    params = params || {}; // we can put into also all the channel provided by server.
+    userId = params.userId;
+
+    if (!userId) {
+      connection.state = 'error';
+      return ;
+    }
+
     if (typeof params.url !== 'string' && params.url === '') { return;}
-    this.dispatcher = new WebSocketRails(params.url);
-    var channel = this.dispatcher.subscribe('new_client_connected');
 
-    // var channel = dispatcher.subscribe('new_client_connected');
-    connection.dispatcher.on_open = onOpen;
-    connection.dispatcher.connection_closed = onClose;
-    connection.dispatcher.connection_error = onError;
+    connection.dispatcher = new WebSocketRails(params.url);
+    connection.state = 'connecting';
+    connection.subscribeAndBindChannels();
+    connection.addCallbacks(params.callbacks);
 
-    channel.bind('new_client_connected', function(data) {
-      console.log('channel event received: ' + data);
-    });
+  };
 
-    if (cb){
-      cb();
+  connection.subscribeAndBindChannels = function(){
+    for (var i = 0; i < channels.length; i++){
+      var channel = channels[i];
+      connection.channels[channel] = connection.dispatcher.subscribe(channel);
+      connection.channels[channel].bind(channel, cbBindChannel.bind(this, channel));
     }
   };
 
-  var onOpen = function(data){
-    // TO DO: do we have to alert user for init connection?
+  var cbBindChannel = function(channel,data){
+    console.log(channel + ' event received: ' + data);
   };
 
-  var onClose = function(){
-    // TO DO:
-     console.log('HELLO')
+  connection.addCallbacks = function(cbs){
+    var dispatcher = connection.dispatcher;
+    dispatcher.on_open = cbs.on_open;
+    dispatcher.connection_closed = cbs.on_close;
+    dispatcher.connection_error = cbs.on_error;
   };
 
-  var onError = function(data){
+  connection.disconnect = function(data){
+    connection.dispatcher.connection_closed();
+  };
+
+  // connection.on_open = function(data){
+  //   connection.state = 'opened';
+  //
+  //   var successConnection = function(opts){ // MOVE THIS FUNCTION IN ANOTHER CLASS
+  //     opts = opts || {};
+  //     dom.id(connection.DIV_ID_WELCOME_USER).innerHTML = connection.MESSAGE_FOR_WELCOME;
+  //     var elem = dom.createElement('div',userId);
+  //     var target = dom.id('all_clients');
+  //     dom.insertElement(elem,target);
+  //   };
+  //   successConnection();
+  // };
+  //
+  // connection.on_close = function(){
+  //   connection.state = 'closed';
+  //
+  //   var elem = dom.id(connection.DIV_ID_GOODBYE_USER);
+  //   elem.innerHTML = connection.MESSAGE_FOR_GOODBYE;
+  //   var elemToRemove = dom.id(userId);
+  //   dom.remove(elemToRemove);
+  // };
+
+  connection.on_error = function(data){
     console.log('on error' + data);
   };
 
-  connection.send = function(){
+  connection.send = function(params){
+    params = params || {};
+    // channel.trigger('event_name', params);
     // TO DO:
+  };
+  connection.unsubscribeChannel = function(channel){
+    connection.channels[channel].destroy();
   };
 
   connection.receive = function(){
     // TO DO:
   };
 
-})(window._chess.socket.connection = {});
+})(window._chess.socket.connection = {}, window._chess.lib.dom);

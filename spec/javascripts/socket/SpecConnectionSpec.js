@@ -1,51 +1,62 @@
 //= require socket/Connection.js
 
-// take a look at this for new idea or inspiration...
-// https://github.com/websocket-rails/websocket-rails/blob/master/spec/javascripts/websocket_rails/event_spec.coffee
+jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
 
-(function(connection){
-  describe('Socket', function() {
+(function(connection, dom){
+  var channel_example = 'new_client_connected';
+
+  describe('socket.connection', function() {
+    var userId = 'test-id';
     var stub = {
-      url: 'localhost:3001/websocket'
+      callbacks: [],
+      state: 'init',
+      url: 'localhost:3001/websocket',
+      userId: userId,
+      channels: [channel_example],
+      on_open: function(){ return;},
+      on_close: function(){return;},
+
     };
+    describe('init()',function(){
+      it('shouldn\'t start without userId', function(){
+        stub.userId = null;
+        connection.init(stub);
+        expect(connection.state).toBe('error');
+      });
+      it('should process', function(){
+        stub.userId = userId;
+        spyOn(connection,'subscribeAndBindChannels');
+        spyOn(connection,'addCallbacks');
+        connection.init(stub);
+        expect(connection.dispatcher.url).toBe(stub.url);
+        expect(connection.dispatcher).not.toBe(null);
+        expect(connection.subscribeAndBindChannels).toHaveBeenCalled();
+        expect(connection.addCallbacks).toHaveBeenCalled();
+      });
+    });
 
-    describe('Connection', function() {
+    describe('callbacks', function(){
 
-      describe('init function ', function() {
-        beforeAll(function(){
-          connection.init(stub);
-        });
-        it('have a connection url', function() {
-          expect(connection.dispatcher.url).toBe(stub.url);
-        });
+      it('onOpen()', function(){
+        var cb = function(){
+        };
+        stub.callbacks.on_open = cb;
+        connection.init(stub);
+        expect(connection.dispatcher.on_open).toBe(cb);
 
-        describe('dispatcher', function(){
-          it('to be defined', function() {
-            expect(connection.dispatcher).toBeDefined();
-          });
+      });
 
-          it('the state should \'connecting\'', function() {
-            expect(connection.dispatcher.state).toBe('connecting');
-          });
-          describe('callback', function(){
-            it('on_open should be called', function(done) {
-              spyOn(connection.dispatcher, 'on_open');
-              setTimeout(function(){expect(connection.dispatcher.on_open).toHaveBeenCalled();done();}, 150);
-            });
-
-            it('connection_closed should be called', function(/*done*/) {
-              connection.dispatcher.disconnect();
-              spyOn(connection.dispatcher, 'connection_closed');
-              // setTimeout(function(){
-              expect(connection.dispatcher.state).toBe('disconnected');
-              expect(connection.dispatcher.connection_closed).toHaveBeenCalled();
-              // done();}, 3010);
-            });
-
-          });
-        });
+      it('onClose()', function(){
+        var cb = function(){};
+        stub.callbacks.on_close = cb;
+        connection.init(stub);
+        expect(connection.dispatcher.connection_closed).toBe(cb);
       });
 
     });
+    describe('unsubscribe()',function(){
+    });
+
   });
-})(window._chess.socket.connection);
+
+})(window._chess.socket.connection, window._chess.lib.dom );

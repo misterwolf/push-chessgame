@@ -18,9 +18,12 @@ class SocketController < WebsocketRails::BaseController
     controller_store[:message_count] = 0
   end
 
-  def new_client_connected
+  # THE THINGS ARE BECOMING MORE CLEAR:
+  # 1 IN A CHANNEL I CAN PUT MANY ACTIONS.
+  # 2 WHEN TWO USERS ARE PLAYING BETTER DO A PRIVATE CHANNEL.
+
+  def new_client_connected # the action of the channel
     begin
-      puts 'new_client_connected'
       params['action'] = 'new_client_connected'
       params['content'] = [['id'=>current_user.id,'email'=> current_user.email]]
       WebsocketRails[:new_client_connected].trigger 'new_client_connected', response_message(params)

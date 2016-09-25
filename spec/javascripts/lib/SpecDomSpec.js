@@ -30,5 +30,49 @@
       });
     });
 
+    describe('remove',function(){
+      var elem_id = 'element_to_remove';
+      it('return no elements after deleting',function(){
+        var elem = dom.id(elem_id);
+        expect(dom.remove(elem)).toBe(0);
+      });
+      it('does not fail if param is wrong',function(){
+        expect(dom.remove(elem_id + '_nulling')).toBe(undefined);
+      });
+    });
+
+    describe('createElement()',function(){
+      var elem = null;
+      var tag = 'div';
+      it('tag is defined',function(){
+        elem = dom.createElement(tag);
+        expect(elem.tagName).toBe(tag.toUpperCase());
+      });
+      describe('with class name',function(){
+        var testClass = 'test-class';
+        elem = dom.createElement(tag, null, testClass);
+        it('element has class',function(){
+          expect(elem.className).toBe(testClass);
+        });
+      });
+      describe('with id',function(){
+        var id = 'test-id';
+        it('element has id',function(){
+          elem = dom.createElement(tag, id);
+          expect(elem.id).toBe(id);
+        });
+      });
+
+      describe('with both',function(){
+        var id = 'test-id';
+        var testClass = 'test-class';
+        it('element has id and class',function(){
+          elem = dom.createElement(tag, id, testClass);
+          expect(elem.className).toBe(testClass);
+          expect(elem.id).toBe(id);
+        });
+      });
+    });
+
   });
 })(window._chess.lib.dom);
