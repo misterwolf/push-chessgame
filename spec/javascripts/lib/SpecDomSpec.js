@@ -37,44 +37,37 @@
         expect(dom.remove(elem)).toBe(0);
       });
       it('does not fail if param is wrong',function(){
-        console.log(dom.remove(elem_id + '_nulling'));
         expect(dom.remove(elem_id + '_nulling')).toBe(undefined);
       });
     });
 
-    describe('createElement',function(){
+    describe('createElement()',function(){
       var elem = null;
       var tag = 'div';
-      it('tag is div',function(){
+      it('tag is defined',function(){
         elem = dom.createElement(tag);
         expect(elem.tagName).toBe(tag.toUpperCase());
       });
       describe('with class name',function(){
         var testClass = 'test-class';
-        beforeEach(function(){
-          elem = dom.createElement(tag, null, testClass);
-        });
+        elem = dom.createElement(tag, null, testClass);
         it('element has class',function(){
           expect(elem.className).toBe(testClass);
         });
       });
       describe('with id',function(){
-        var id = 'id-class';
-        beforeEach(function(){
-          elem = dom.createElement(tag, id);
-        });
+        var id = 'test-id';
         it('element has id',function(){
+          elem = dom.createElement(tag, id);
           expect(elem.id).toBe(id);
         });
       });
 
       describe('with both',function(){
-        var id = 'id-class';
+        var id = 'test-id';
         var testClass = 'test-class';
-        beforeEach(function(){
-          elem = dom.createElement(tag, id, testClass);
-        });
         it('element has id and class',function(){
+          elem = dom.createElement(tag, id, testClass);
           expect(elem.className).toBe(testClass);
           expect(elem.id).toBe(id);
         });
