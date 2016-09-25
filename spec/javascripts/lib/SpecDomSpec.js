@@ -63,7 +63,7 @@
         beforeEach(function(){
           elem = dom.createElement(tag, id);
         });
-        it('element has class',function(){
+        it('element has id',function(){
           expect(elem.id).toBe(id);
         });
       });
