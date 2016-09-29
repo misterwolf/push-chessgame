@@ -13,35 +13,16 @@
   // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE!
   // 2.3 naturally, it's better that elements id must be variables.
 
-  connection.DIV_ID_WELCOME_USER = 'welcome_user';
-  connection.DIV_ID_GOODBYE_USER = 'goodbye_user';
-  connection.CONTAINER_ALL_CLIENTS = 'all_clients';
-
-  connection.MESSAGE_FOR_WELCOME = 'Welcome user! :)';
-  connection.MESSAGE_FOR_GOODBYE = 'Goodbye user! :)';
-
-  var channels = [
-    'new_client_connected',
-    'get_all_clients'
-  ];
-  connection.state = 'init';
-  // ----
-  var userId = null;
-  connection.channels = channels;
+  connection.state = '';
+  var channels = null;
   connection.dispatcher = null;
   connection.opened = false;
 
   connection.init = function(params, cb){
     params = params || {}; // we can put into also all the channel provided by server.
-    userId = params.userId;
-
-    if (!userId) {
-      connection.state = 'error';
-      return ;
-    }
-
-    if (typeof params.url !== 'string' && params.url === '') { return;}
-
+    channels = params.channels || '';
+    if (typeof params.url !== 'string' && params.url === '') { return; }
+    if (!channels) { return; }
     connection.dispatcher = new WebSocketRails(params.url);
     connection.state = 'connecting';
     connection.subscribeAndBindChannels();

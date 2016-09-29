@@ -2,7 +2,7 @@
 
 jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
 
-(function(connection, dom){
+(function(connection){
   var channel_example = 'new_client_connected';
 
   describe('socket.connection', function() {
@@ -11,20 +11,14 @@ jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
       callbacks: [],
       state: 'init',
       url: 'localhost:3001/websocket',
-      userId: userId,
       channels: [channel_example],
       on_open: function(){ return;},
       on_close: function(){return;},
 
     };
     describe('init()',function(){
-      it('shouldn\'t start without userId', function(){
-        stub.userId = null;
-        connection.init(stub);
-        expect(connection.state).toBe('error');
-      });
+
       it('should process', function(){
-        stub.userId = userId;
         spyOn(connection,'subscribeAndBindChannels');
         spyOn(connection,'addCallbacks');
         connection.init(stub);
@@ -59,4 +53,4 @@ jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
 
   });
 
-})(window._chess.socket.connection, window._chess.lib.dom );
+})(window._chess.socket.connection );
