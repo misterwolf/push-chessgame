@@ -1,7 +1,6 @@
 //= require lib/dom.js
 
 (function(dom){
-  jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
 
   describe('dom', function(){
 

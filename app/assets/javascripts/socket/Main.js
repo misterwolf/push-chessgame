@@ -4,47 +4,53 @@
 //= require socket/Connection
 //= require lib/dom
 
-(function(main){
+(function(main, dom){
 
-  var MainInterface = function(){
+  // var Mainsocket = function(){
+  var DIV_ID_GENERAL_MESSAGE_USER = 'general-message-user';
+  var MESSAGE_FOR_WELCOME = 'Welcome!';
+  var MESSAGE_FOR_GOODBYE = 'Goodbye!';
+  var DIV_ID_CONTAINER_ALL_CLIENTS = 'all-clients';
 
-    var currentUserId = null;
-    this.state = null;
-    var DIV_ID_WELCOME_USER = 'welcome_user';
-    var DIV_ID_GOODBYE_USER = 'goodbye_user';
-    var CONTAINER_ALL_CLIENTS = 'all_clients';
+  var currentUserId = null;
+  main.state = null;
+  main.welcomeMessage = '';
 
-    var MESSAGE_FOR_WELCOME = 'Welcome user! :)';
-    var MESSAGE_FOR_GOODBYE = 'Goodbye user! :)';
+  main.init = function(opts){
+    opts = opts || {};
 
-    var CHANNELS = [
-      'new_client_connected',
-      'get_all_clients'
-    ];
+    currentUserId = opts.currentUserId;
+    if (currentUserId === null){
+      return;
+    }
 
-    main.init = function(opts){
-      opts = opts || {};
-
-      currentUserId = opts.currentUserId;
-      if (currentUserId === null){
-        return;
-      }
-
-      this.state = 'initialized';
-    };
-
-    main.onOpen = function(opts){
-
-    };
-
-    main.onClose = function(){
-
-    };
-
-    main.init();
+    this.welcomeMessage = opts.welcomeMessage || MESSAGE_FOR_WELCOME;
+    this.state = 'initialized';
 
   };
 
-  window._chess.socket.main = MainInterface;
+  var fillGeneralMessage = function(msg){
+    dom.id(DIV_ID_GENERAL_MESSAGE_USER).innerHTML = msg;
+  };
 
-})(window._chess.socket.main = {});
+  var addInfoUser = function(){
+    var elem = dom.createElement('div', currentUserId);
+    var target = dom.id(DIV_ID_CONTAINER_ALL_CLIENTS);
+    dom.insertElement(elem,target);
+  };
+
+  main.onOpen = function(opts){
+    fillGeneralMessage(MESSAGE_FOR_WELCOME);
+    addInfoUser();
+  };
+
+  main.onClose = function(){
+    fillGeneralMessage(MESSAGE_FOR_GOODBYE);
+    dom.remove( dom.id(currentUserId) );
+  };
+
+  // };
+
+  // window._chess.socket.MainSocket = MainSocket;
+
+})(window._chess.socket.main = {}, window._chess.lib.dom);

@@ -17,20 +17,20 @@
   var channels = null;
   connection.dispatcher = null;
   connection.opened = false;
+  connection.channels = [];
 
   connection.init = function(params, cb){
     params = params || {}; // we can put into also all the channel provided by server.
-    channels = params.channels || '';
+    channels = params.channels;
     if (typeof params.url !== 'string' && params.url === '') { return; }
     if (!channels) { return; }
     connection.dispatcher = new WebSocketRails(params.url);
     connection.state = 'connecting';
-    connection.subscribeAndBindChannels();
-    connection.addCallbacks(params.callbacks);
-
+    subscribeAndBindChannels();
+    addCallbacks(params.callbacks);
   };
 
-  connection.subscribeAndBindChannels = function(){
+  var subscribeAndBindChannels = function(){
     for (var i = 0; i < channels.length; i++){
       var channel = channels[i];
       connection.channels[channel] = connection.dispatcher.subscribe(channel);
@@ -42,48 +42,22 @@
     console.log(channel + ' event received: ' + data);
   };
 
-  connection.addCallbacks = function(cbs){
+  var addCallbacks = function(cbs){
     var dispatcher = connection.dispatcher;
     dispatcher.on_open = cbs.on_open;
-    dispatcher.connection_closed = cbs.on_close;
-    dispatcher.connection_error = cbs.on_error;
+    dispatcher.connection_closed = cbs.connection_closed;
+    dispatcher.connection_error = cbs.connection_error;
+  };
+
+  connection.sendOnChannel = function(channel, params){
+    params = params || {};
+    connection.channels[channel].trigger(params.event_name, params.message);
   };
 
   connection.disconnect = function(data){
     connection.dispatcher.connection_closed();
   };
 
-  // connection.on_open = function(data){
-  //   connection.state = 'opened';
-  //
-  //   var successConnection = function(opts){ // MOVE THIS FUNCTION IN ANOTHER CLASS
-  //     opts = opts || {};
-  //     dom.id(connection.DIV_ID_WELCOME_USER).innerHTML = connection.MESSAGE_FOR_WELCOME;
-  //     var elem = dom.createElement('div',userId);
-  //     var target = dom.id('all_clients');
-  //     dom.insertElement(elem,target);
-  //   };
-  //   successConnection();
-  // };
-  //
-  // connection.on_close = function(){
-  //   connection.state = 'closed';
-  //
-  //   var elem = dom.id(connection.DIV_ID_GOODBYE_USER);
-  //   elem.innerHTML = connection.MESSAGE_FOR_GOODBYE;
-  //   var elemToRemove = dom.id(userId);
-  //   dom.remove(elemToRemove);
-  // };
-
-  connection.on_error = function(data){
-    console.log('on error' + data);
-  };
-
-  connection.send = function(params){
-    params = params || {};
-    // channel.trigger('event_name', params);
-    // TO DO:
-  };
   connection.unsubscribeChannel = function(channel){
     connection.channels[channel].destroy();
   };
