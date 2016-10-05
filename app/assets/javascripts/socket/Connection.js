@@ -24,7 +24,9 @@
     channels = params.channels;
     if (typeof params.url !== 'string' && params.url === '') { return; }
     if (!channels) { return; }
-    connection.dispatcher = new WebSocketRails(params.url);
+    if (!connection.dispatcher){
+      connection.dispatcher = new WebSocketRails(params.url);
+    }
     connection.state = 'connecting';
     subscribeAndBindChannels();
     addCallbacks(params.callbacks);

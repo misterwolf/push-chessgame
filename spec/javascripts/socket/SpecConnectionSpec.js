@@ -4,9 +4,7 @@
   var channel_example = 'new_client_connected';
 
   describe('socket.connection', function() {
-    afterAll(function(){
-      connection = null;
-    });
+
     var userId = 'test-id';
     var opts = {
       callbacks: {
@@ -40,6 +38,19 @@
           expect(connection.dispatcher.connection_error).toBe(opts.callbacks.connection_error);
         });
       });
+
+      it('shouldn\'t reinitialize dispatcher if already present',function(){
+        var fakeDispatcher = {
+          subscribe: function(){ return {
+              bind: jasmine.createSpy()
+            };
+          }
+        };
+        connection.dispatcher = fakeDispatcher;
+        connection.init(opts);
+        expect(connection.dispatcher).toBe(fakeDispatcher);
+      });
+
     });
 
     describe('sendOnChannel()', function(){
