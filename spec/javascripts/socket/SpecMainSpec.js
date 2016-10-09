@@ -6,12 +6,14 @@
   var welcomeMessage = 'Welcome!';
   var goodbyeMessage = 'Goodbye!';
 
-  var stubConnection = {
-    dispatcher: function(){}
-  };
-
   describe('Main',function(){
 
+    var mockConnection = {
+      dispatcher: function(){},
+      init: jasmine.createSpy()
+    };
+
+    connection = mockConnection;
     var opts = {};
 
     beforeEach(function(){
@@ -35,41 +37,54 @@
         expect(main.welcomeMessage).toBe(welcomeMessage);
       });
 
+      it('initialize a connection object',function(){
+        main.init(opts);
+        expect(connection.init).toHaveBeenCalled();
+      });
+
     });
 
     describe('onOpen()',function(){
 
       beforeEach(function(){
         main.init(opts);
-        main.onOpen();
       });
 
       it('write welcome message',function(){
+        main.onOpen();
         expect($(messageContainer).text()).toBe(welcomeMessage);
+      });
+
+      it('execute callback',function(){
+        var cb = jasmine.createSpy();
+        main.onOpen(cb);
+        expect(cb).toHaveBeenCalled();
       });
 
       xit('add user info on all clients div',function(){
         var el = $('#test-id');
+        main.onOpen();
         expect($(allClientsContainer).children()).toContain(el);
       });
 
     });
 
     describe('onClose()',function(){
-
+      var el = $('#test-id');
       beforeEach(function(){
         main.init(opts);
-        var el = $('#test-id');
         $(allClientsContainer).append(el);
-        main.onClose();
       });
 
       it('write goodbye message',function(){
+        main.onClose();
         expect($(messageContainer).text()).toBe(goodbyeMessage);
       });
 
-      xit('add user info on all clients div',function(){
-        expect($(allClientsContainer).children()[0]).not.toContain(el);
+      it('remove user info on all clients div',function(){
+        main.onClose();
+        $(allClientsContainer).append(el);
+        expect($(allClientsContainer).children()).not.toContain(el);
       });
 
     });

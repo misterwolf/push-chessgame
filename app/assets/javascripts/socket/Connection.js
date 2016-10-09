@@ -12,9 +12,9 @@
   // 2.1 LIKE: CONSTANTS AND DOM.ID|CLASSES!
   // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE!
   // 2.3 naturally, it's better that elements id must be variables.
+  var channels = null;
 
   connection.state = '';
-  var channels = null;
   connection.dispatcher = null;
   connection.opened = false;
   connection.channels = [];
@@ -30,6 +30,7 @@
     connection.state = 'connecting';
     subscribeAndBindChannels();
     addCallbacks(params.callbacks);
+    return this;
   };
 
   var subscribeAndBindChannels = function(){
