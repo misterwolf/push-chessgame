@@ -61,10 +61,9 @@
         expect(cb).toHaveBeenCalled();
       });
 
-      xit('add user info on all clients div',function(){
-        var el = $('#test-id');
+      it('add user info on all clients div',function(){
         main.onOpen();
-        expect($(allClientsContainer).children()).toContain(el);
+        expect($('#' + opts.currentUserId).length).toBe(1);
       });
 
     });
@@ -82,9 +81,9 @@
       });
 
       it('remove user info on all clients div',function(){
-        main.onClose();
         $(allClientsContainer).append(el);
-        expect($(allClientsContainer).children()).not.toContain(el);
+        main.onClose();
+        expect($('#' + opts.currentUserId).length).toBe(0);
       });
 
     });
