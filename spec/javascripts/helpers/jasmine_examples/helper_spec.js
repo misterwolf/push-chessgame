@@ -14,5 +14,4 @@ beforeEach(function () {
   });
 });
 
-
 jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';

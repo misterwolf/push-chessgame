@@ -12,7 +12,7 @@
   // 2.1 LIKE: CONSTANTS AND DOM.ID|CLASSES!
   // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE!
   // 2.3 naturally, it's better that elements id must be variables.
-  var channels = null;
+  var channels_specs = null;
 
   connection.state = '';
   connection.dispatcher = null;
@@ -21,35 +21,43 @@
 
   connection.init = function(params, cb){
     params = params || {}; // we can put into also all the channel provided by server.
-    channels = params.channels;
-    if (typeof params.url !== 'string' && params.url === '') { return; }
-    if (!channels) { return; }
+    channels_specs = params.channels_specs;
+    if (!params.url) {
+      params.url = 'localhost:3001/websocket';
+    }
+    if (!channels_specs) { return; }
     if (!connection.dispatcher){
       connection.dispatcher = new WebSocketRails(params.url);
     }
     connection.state = 'connecting';
-    subscribeAndBindChannels();
-    addCallbacks(params.callbacks);
+    subscribeAndBindChannels(channels_specs);
+    addMainCallbacks(params.callbacks);
     return this;
   };
 
-  var subscribeAndBindChannels = function(){
-    for (var i = 0; i < channels.length; i++){
-      var channel = channels[i];
-      connection.channels[channel] = connection.dispatcher.subscribe(channel);
-      connection.channels[channel].bind(channel, cbBindChannel.bind(this, channel));
+  var subscribeAndBindChannels = function(channels_specs){
+    for (var channel_specs in channels_specs){
+      channel_specs = channels_specs[channel_specs];
+      var channel_name = channel_specs.channel_name;
+      connection.channels[channel_name] = connection.dispatcher.subscribe(channel_name);
+
+      var events = channel_specs.events;
+      var events_length = events_length;
+      for (var j = 0; j < events_length; j++ ){
+        connection.channels[channel_name].bind(
+          events[j].event_name,
+          events[j].bind_function.bind(this, channel_name)
+        ); // how to test?
+      }
     }
   };
 
-  var cbBindChannel = function(channel,data){
-    console.log(channel + ' event received: ' + data);
-  };
-
-  var addCallbacks = function(cbs){
+  var addMainCallbacks = function(cbs){
+    cbs = cbs || {};
     var dispatcher = connection.dispatcher;
-    dispatcher.on_open = cbs.on_open;
-    dispatcher.connection_closed = cbs.connection_closed;
-    dispatcher.connection_error = cbs.connection_error;
+    dispatcher.on_open = cbs.on_open || function(){};
+    dispatcher.connection_closed = cbs.connection_closed || function(){};
+    dispatcher.connection_error = cbs.connection_error || function(){};
   };
 
   connection.sendOnChannel = function(channel, params){
