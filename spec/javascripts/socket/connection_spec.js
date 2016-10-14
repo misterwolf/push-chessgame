@@ -12,7 +12,6 @@
         connection_closed: function(){return;},
         connection_error:  function(){return;}
       },
-      state: 'init',
       url: 'localhost:3001/websocket',
       // channel_name,
       //    event_name:

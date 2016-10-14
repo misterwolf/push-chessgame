@@ -14,7 +14,6 @@
   // 2.3 naturally, it's better that elements id must be variables.
   var channels_specs = null;
 
-  connection.state = '';
   connection.dispatcher = null;
   connection.opened = false;
   connection.channels = [];
@@ -29,7 +28,6 @@
     if (!connection.dispatcher){
       connection.dispatcher = new WebSocketRails(params.url);
     }
-    connection.state = 'connecting';
     subscribeAndBindChannels(channels_specs);
     addMainCallbacks(params.callbacks);
     return this;
