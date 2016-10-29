@@ -4,97 +4,86 @@
 //= require socket/Connection
 //= require lib/dom
 
-(function(mainChannel, dom){
-
+(function(mainChannel, connection, dom){
+  'use strict';
   // var Mainsocket = function(){
 
-  // DEFAULT VALUES.
-  var DIV_ID_GENERAL_MESSAGE_USER = 'general-message-user';
-  var MESSAGE_FOR_WELCOME = 'Welcome!';
-  var MESSAGE_FOR_GOODBYE = 'Goodbye!';
-  var DIV_ID_CONTAINER_ALL_CLIENTS = 'all-clients';
-
-  // var CHANNELS = [
-  //   'new_client_connected',
-  //   'get_all_clients',
-  //   'client_disconnected
-  // ];
-
-  mainChannel.channels = {};
-
-  var currentUserId = null;
-
   mainChannel.connection = null;
+  mainChannel.currentUserId = null;
 
   mainChannel.init = function(opts){
-    opts = opts || {};
-    currentUserId = opts.currentUserId;
+    // opts = opts || {};
+    var callbacks = opts.callbacks;
+    mainChannel.currentUserId = opts.currentUserId;
 
-    if (!currentUserId){
-      return null;
-    }
-    mainChannel.channels = {
-      channels_specs: {
-        new_client_connected: {
-          channelName: 'new_client_connected',
-          events:{
-            eventName: 'new_client_info',
-            bindFuction: addInfoNewClient
+    mainChannel.channels_specs = {
+      new_client_connected: {
+        channelName: 'new_client_connected',
+        events:{
+          new_client_info: {
+            event_name: 'new_client_info',
+            bindFunction: function(data){
+              mainChannel.newClientConnected(data,callbacks.new_client_connected);
+            }
           }
-        },
-        get_all_clients: {
-          channelName: 'get_all_clients',
-          events:{
-            eventName: 'all_clients_info',
-            bindFuction: fecthAllClients
+        }
+      },
+      get_all_clients: {
+        channelName: 'get_all_clients',
+        events:{
+          all_clients_info: {
+            event_name: 'all_clients_info',
+            bindFunction: function(data){
+              mainChannel.getAllClients(data,callbacks.get_all_clients);
+            }
+          }
+        }
+      },
+      client_disconnected: {
+        channelName: 'client_disconnected',
+        events:{
+          remove_client_info: {
+            event_name: 'remove_client_info',
+            bindFunction: function(data){
+              mainChannel.removeClientInfo(data,callbacks.client_disconnected);
+            }
           }
         }
       }
     };
-    this.connection = window._chess.socket.connection.init(mainChannel.channels,null);
 
+    opts.channels_specs = mainChannel.channels_specs;
+
+    this.connection = connection.init(opts,null);
   };
 
-  var fecthAllClients = function(users){
-    users = users || {};
-    for (var user in users){
-      addInfoNewClient(users[user]);
-    }
+  mainChannel.newClientConnected = function(data,cb){
+    cb(data.user);
   };
 
-  var addInfoNewClient = function(user){
-    // TO DO: try catch!
-    user = user || {};
-    addInfoUser(user.id);
+  mainChannel.getAllClients = function(data,cb){
+    cb(data.users);
   };
 
-  // callbacks ----
-  var fillGeneralMessage = function(msg){
-    dom.id(DIV_ID_GENERAL_MESSAGE_USER).innerHTML = msg;
+  mainChannel.removeClientInfo = function(data,cb){
+    cb(data.user);
   };
 
-  var addInfoUser = function(userId){
-    var elem = dom.createElement('div', userId);
-    var target = dom.id(DIV_ID_CONTAINER_ALL_CLIENTS);
-    dom.insertElement(elem,target);
+  mainChannel.start = function(){
+    this.connection.start({on_open: function(){
+        console.log('before send');
+        mainChannel.connection.sendOnChannel('new_client_connected', {event_name: 'new_client_info', message:{ user: {id:mainChannel.currentUserId, name: 'Andrea'}}});
+      }
+    });
   };
 
-  var removeItem = function(){
-    dom.remove( dom.id(currentUserId) );
-  };
-
-  mainChannel.onOpen = function(){
-    fillGeneralMessage(MESSAGE_FOR_WELCOME);
-    addInfoUser(currentUserId);
-  };
-
-  mainChannel.onClose = function(){
-    fillGeneralMessage(MESSAGE_FOR_GOODBYE);
-    removeItem();
+  mainChannel.closeConnection = function(){
+    // this.connection = null; try also this
+    this.connection.disconnect();
   };
 
   // };
 
   // window._chess.socket.MainSocket = MainSocket;
 
-})(window._chess.socket.mainChannel = {}, window._chess.lib.dom);
+})(window._chess.socket.mainChannel = {}, window._chess.socket.connection, window._chess.lib.dom);

@@ -71,6 +71,22 @@
           expect(elem.id).toBe(id);
         });
       });
+
+      describe('addEventListener', function(){
+        it('event is triggered', function(done){
+          var elem = dom.id('btn');
+
+          dom.addEventListener(elem, 'click', function(evt){
+            expect(evt.target).toBe(elem);
+            done();
+          });
+          // move event creator on helper
+          var event = document.createEvent('HTMLEvents');
+          event.initEvent('click', true, true);
+          elem.dispatchEvent(event);
+          // $(elem).click();
+        });
+      });
     });
 
   });

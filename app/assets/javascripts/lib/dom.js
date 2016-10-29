@@ -2,6 +2,7 @@
 //= require lib/namespace
 
 (function(dom){
+  'use strict';
 
   /**
  * Shorthand for document.getElementById
@@ -75,6 +76,15 @@
     elem.className = className;
     elem.id = id;
     return elem;
+  };
+
+  /*
+   * Add an event listener on element
+   * @param {string} element: element HTML
+   * @param {eventName}: name of event
+   */
+  dom.addEventListener = function(obj, type, cb){
+    obj.addEventListener( type, cb, true );
   };
 
 })(window._chess.lib.dom = {});

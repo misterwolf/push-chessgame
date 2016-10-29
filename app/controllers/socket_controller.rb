@@ -18,9 +18,7 @@ class SocketController < WebsocketRails::BaseController
     controller_store[:message_count] = 0
   end
 
-  # THE THINGS ARE BECOMING MORE CLEAR:
-  # 1 IN A CHANNEL I CAN PUT MANY ACTIONS.
-  # 2 WHEN TWO USERS ARE PLAYING BETTER DO A PRIVATE CHANNEL.
+  # not use controller when use channels
 
   def new_client_connected # the action of the channel
     begin
@@ -56,11 +54,11 @@ class SocketController < WebsocketRails::BaseController
     begin
       params['action'] = 'client_disconnected'
       params['content'] = [['id'=>current_user.id,'email'=> current_user.email]]
-      WebsocketRails[:client_disconnected].trigger 'client_disconnected', response_message(params)
+      WebsocketRails[:client_disconnected].trigger 'remove_client_info', response_message(params)
     rescue Exception => e
       params['action'] = 'client_disconnected'
       params['error'] = {'exist' => 1,'log' => e}
-      WebsocketRails[:client_disconnected].trigger 'client_disconnected', response_message(params)
+      WebsocketRails[:client_disconnected].trigger 'remove_client_info', response_message(params)
     end
   end
 

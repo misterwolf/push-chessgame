@@ -1,32 +1,46 @@
 //= require socket/Connection.js
 
 (function(connection){
+  'use strict';
+
   var channel_example = 'channel_example';
   var usedId = 'test-id';
   var opts = null;
+  var url = 'localhost:3000/websocket';
+  var fakeDispatcher = {
+    subscribe: function(){ return {
+        bind: jasmine.createSpy()
+      };
+    }
+  };
+
+  var WebSocketRails = fakeDispatcher;
 
   var stub = function(){
     opts = {
       callbacks: {
-        on_open: function(){ return;},
-        connection_closed: function(){return;},
-        connection_error:  function(){return;}
+        on_open: jasmine.createSpy(),
+        connection_closed: jasmine.createSpy(),
+        connection_error: jasmine.createSpy()
       },
-      url: 'localhost:3001/websocket',
+      url: url,
       // channel_name,
       //    event_name:
       //      name:
       //      function:
       channels_specs: {
-        channel_example: {
-          channel_name: channel_example,
+        new_client_connected: {
+          channelName: channel_example,
           events:{
-            event_name: '',
-            bind_fuction: jasmine.createSpy()
+            new_client_info: {
+              event_name: 'test_event',
+              bindFunction: function(data){
+                mainChannel.newClientConnected(data,callbacks.new_client_connected);
+              }
+            }
           }
         }
       }
-
     };
   };
 
@@ -34,66 +48,49 @@
     beforeEach(function(){
       stub();
     });
+    describe('start', function(){
+      beforeEach(function(){
+        connection.init(opts);
+        connection.start();
+      });
+      afterEach(function(){
+        connection.dispatcher = null;
+      });
+      xit('shouldn\'t reinitialize dispatcher if already present',function(){
+        expect(connection.dispatcher).toBe(fakeDispatcher);
+      });
+      it('has on_open',function(){
+        expect(connection.dispatcher.on_open).toBe(opts.callbacks.on_open);
+      });
+      it('run if callbacks are missing',function(){
+        opts.callbacks = null;
+        expect(connection.init(opts)).toBe(connection);
+      });
+      it('has connection_closed callback',function(){
+        expect(connection.dispatcher.connection_closed).toBe(opts.callbacks.connection_closed);
+      });
+      it('has connection_error callback',function(){
+        expect(connection.dispatcher.connection_error).toBe(opts.callbacks.connection_error);
+      });
+      describe('passed channel', function(){
+        it('is subscribed', function(){
+          expect(connection.channels[channel_example]).toBeDefined();
+        });
+        xit('event is binded', function(){
+          // TO DO
+          expect(connection.channels[channel_example].event.bind_fuction).isBinded();
+        });
+      });
+    });
 
     describe('init()',function(){
       describe('url',function(){
-
-        it('url',function(){
-          connection.init(opts);
-          expect(connection.dispatcher.url).toBe(opts.url);
-        });
         it('set default string',function(){
           opts.url = null;
           connection.init(opts);
-          expect(connection.dispatcher.url).toBe(opts.url);
+          expect(connection.url).toBe(url);
         });
       });
-
-      describe('in options processing', function(){
-
-        beforeEach(function(){
-        });
-        it('callbacks are missing ',function(){
-          opts.callbacks = null;
-          expect(connection.init(opts)).toBe(connection);
-        });
-        it('has on_open',function(){
-          connection.init(opts);
-          expect(connection.dispatcher.on_open).toBe(opts.callbacks.on_open);
-        });
-        it('has connection_closed callback',function(){
-          connection.init(opts);
-          expect(connection.dispatcher.connection_closed).toBe(opts.callbacks.connection_closed);
-        });
-        it('has connection_error callback',function(){
-          connection.init(opts);
-          expect(connection.dispatcher.connection_error).toBe(opts.callbacks.connection_error);
-        });
-        describe('passed channel', function(){
-          it('is subscribed', function(){
-            connection.init(opts);
-            expect(connection.channels[channel_example]).toBeDefined();
-          });
-          xit('is binded', function(){ // ?
-            var optsForSend = {};
-            connection.init(opts);
-            expect(connection.channels[channel_example].bind.call(this)).toBeDefined();
-          });
-        });
-      });
-
-      it('shouldn\'t reinitialize dispatcher if already present',function(){
-        var fakeDispatcher = {
-          subscribe: function(){ return {
-              bind: jasmine.createSpy()
-            };
-          }
-        };
-        connection.dispatcher = fakeDispatcher;
-        connection.init(opts);
-        expect(connection.dispatcher).toBe(fakeDispatcher);
-      });
-
     });
 
     describe('sendOnChannel()', function(){
@@ -106,7 +103,7 @@
       });
     });
 
-    describe('bindChannels()', function(){
+    xdescribe('bindChannels()', function(){
       it('is called with options',function(){
 
       });

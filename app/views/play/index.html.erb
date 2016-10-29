@@ -1,8 +1,27 @@
+<!--
 <div class="row">
  <div class="col-sm-10">
-   <%= render "chess_game/game_table" %>
+   <%#= render "chess_game/game_table" %>
  </div>
  <div class="col-sm-2">
-   <%= render "commons/users_available" %>
+   <%#= render "commons/users_available" %>
  </div>
 </div>
+-->
+<div id="general-message-user"></div>
+
+<div id="on-receive-message"></div>
+
+<div id="all-clients" style="font-size:40px;"></div>
+
+<a id="connect-btn">
+  connect
+</a>
+
+<a id="close-btn">
+  close
+</a>
+
+<script>
+  _chess.ui.main.init({currentUserId:<%= current_user.id %>});
+</script>

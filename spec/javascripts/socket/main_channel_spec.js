@@ -1,110 +1,112 @@
 //= require socket/MainChannel.js
 
-(function(chess){
-  var messageContainer = '#general-message-user';
-  var allClientsContainer = '#all-clients';
-  var welcomeMessage = 'Welcome!';
-  var goodbyeMessage = 'Goodbye!';
-  var channel_name = 'channel_example';
-  var userId = 'test-id';
-  var anotherUserId = 'test-another-id';
+(function(mainChannel){
+  'use strict';
+
   var opts = {};
   var connection = null;
-  var mainChannel = null;
+  var data = {param1: 1};
 
   describe('MainChannel',function(){
 
     beforeEach(function(){
       var stubConnection = {
         dispatcher: function(){},
-        init: jasmine.createSpy()
+        init: function() {return this;},
+        start: jasmine.createSpy(),
+        sendOnChannel: jasmine.createSpy()
       };
+
       window._chess.socket.connection = stubConnection;
-      mainChannel = _chess.socket.mainChannel;
-      loadFixtures('connection/contents.html');
-      loadFixtures('connection/elements.html');
 
       opts = {
-        currentUserId: userId
+        currentUserId: 'test-id',
+        callbacks: {
+          new_client_connected: jasmine.createSpy(),
+          get_all_clients: jasmine.createSpy(),
+          client_disconnected: jasmine.createSpy()
+        }
       };
+
     });
 
     describe('init()',function(){
 
-      it('stop if user id is not defined',function(){
-        expect(mainChannel.init({userId: null})).toBe(null);
-      });
-
       it('initialize a connection object',function(){
         mainChannel.init(opts);
-        expect(window._chess.socket.connection.init).toHaveBeenCalled();
+        expect(mainChannel.connection).toBeDefined();
       });
 
     });
 
-    describe('onOpen()',function(){
+    describe('start()',function(){
 
+      it('should call connection.start',function(){
+        mainChannel.init(opts);
+        mainChannel.start();
+        expect(window._chess.socket.connection.start).toHaveBeenCalled();
+      });
+
+    });
+    describe('channel',function(){
+      // these are hard to test:
+      // test if callback is called with data
+      // test is internal callback is called ( cb(data) )
+      var channels_specs = null;
       beforeEach(function(){
         mainChannel.init(opts);
+        channels_specs = mainChannel.channels_specs;
       });
 
-      it('write welcome message',function(){
-        mainChannel.onOpen();
-        expect($(messageContainer).text()).toBe(welcomeMessage);
-      });
+      describe('newClientConnected()',function(){
+        describe('event new_client_info', function(){
+          it('should be called with options',function(){
+            spyOn(mainChannel, 'newClientConnected');
+            channels_specs.new_client_connected.events.new_client_info.bindFunction(data);
+            expect(mainChannel.newClientConnected).toHaveBeenCalledWith(data,opts.callbacks.new_client_connected);
+          });
+          it('should call callback',function(){
+            channels_specs.new_client_connected.events.new_client_info.bindFunction(data);
+            expect(opts.callbacks.new_client_connected).toHaveBeenCalledWith(data);
+          });
 
-      it('add user info on all clients div',function(){
-        mainChannel.onOpen();
-        expect($('#' + userId).length).toBe(1);
-      });
-
-    });
-
-    describe('onClose()',function(){
-      var el = $('#test-id');
-      beforeEach(function(){
-        mainChannel.init(opts);
-        $(allClientsContainer).append(el);
-      });
-
-      it('write goodbye message',function(){
-        mainChannel.onClose();
-        expect($(messageContainer).text()).toBe(goodbyeMessage);
-      });
-
-      it('remove user info on all clients div',function(){
-        $(allClientsContainer).append(el);
-        mainChannel.onClose();
-        expect($('#' + userId).length).toBe(0);
-      });
-
-    });
-
-    // describe('bind trigger', function(){
-
-    describe('channel event',function(){
-      describe('new_client_info()',function(){
-        it('write in proper position',function(){
-          var el = $(allClientsContainer);
-          mainChannel.channels.channels_specs.new_client_connected.events.bindFuction({id:anotherUserId}); // i think data will be sent in this way.
-          var userDiv = $('#' + anotherUserId);
-          expect(userDiv[0]).toBeDefined();
-          expect(userDiv.parent()[0]).toBe(el[0]);
+          it('should send message to channel',function(){
+            channels_specs.new_client_connected.events.new_client_info.bindFunction(data);
+            expect(mainChannel.connection.sendOnChannel).toHaveBeenCalledWith('new_client_connected', {user: opts.currentUserId});
+          });
         });
       });
-      describe('all_clients_info()',function(){
-        it('write all connected users',function(){
-          var el = $(allClientsContainer);
-          var id1 = anotherUserId;
-          var id2 = anotherUserId + 1;
-          mainChannel.channels.channels_specs.get_all_clients.events.bindFuction({1: {id: id1},2: {id: id2}}); // i think data will be sent in this way.
-          var userDiv1 = $('#' + id1);
-          var userDiv2 = $('#' + id2);
-          expect(userDiv1[0]).toBeDefined();
-          expect(userDiv2[0]).toBeDefined();
+
+      describe('getAllClients()',function(){
+        it('should be called with options',function(){
+          spyOn(mainChannel, 'getAllClients');
+          channels_specs.get_all_clients.events.all_clients_info.bindFunction(data);
+          expect(mainChannel.getAllClients).toHaveBeenCalledWith(data,opts.callbacks.get_all_clients);
+        });
+        it('should call callback',function(){
+          channels_specs.get_all_clients.events.all_clients_info.bindFunction(data);
+          expect(opts.callbacks.get_all_clients).toHaveBeenCalledWith(data);
+        });
+      });
+
+      describe('removeClientInfo()',function(){
+        it('should be called with options',function(){
+          spyOn(mainChannel, 'removeClientInfo');
+          channels_specs.client_disconnected.events.remove_client_info.bindFunction(data);
+          expect(mainChannel.removeClientInfo).toHaveBeenCalledWith(data,opts.callbacks.client_disconnected);
+        });
+        it('should call callback',function(){
+          channels_specs.client_disconnected.events.remove_client_info.bindFunction(data);
+          expect(opts.callbacks.client_disconnected).toHaveBeenCalledWith(data);
+        });
+      });
+
+      xdescribe('requestChat()', function(){          // a request to /socket?private_chat
+        it('should do a request', function(){
         });
       });
     });
+
     // });
   });
 })(window._chess.socket.mainChannel);
