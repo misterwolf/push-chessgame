@@ -1,7 +1,6 @@
 //= require lib/dom.js
 
 (function(dom){
-  jasmine.getFixtures().fixturesPath = 'spec/javascripts/fixtures/';
 
   describe('dom', function(){
 
@@ -70,6 +69,22 @@
           elem = dom.createElement(tag, id, testClass);
           expect(elem.className).toBe(testClass);
           expect(elem.id).toBe(id);
+        });
+      });
+
+      describe('addEventListener', function(){
+        it('event is triggered', function(done){
+          var elem = dom.id('btn');
+
+          dom.addEventListener(elem, 'click', function(evt){
+            expect(evt.target).toBe(elem);
+            done();
+          });
+          // move event creator on helper
+          var event = document.createEvent('HTMLEvents');
+          event.initEvent('click', true, true);
+          elem.dispatchEvent(event);
+          // $(elem).click();
         });
       });
     });

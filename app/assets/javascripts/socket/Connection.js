@@ -12,97 +12,75 @@
   // 2.1 LIKE: CONSTANTS AND DOM.ID|CLASSES!
   // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE!
   // 2.3 naturally, it's better that elements id must be variables.
-
-  connection.DIV_ID_WELCOME_USER = 'welcome_user';
-  connection.DIV_ID_GOODBYE_USER = 'goodbye_user';
-  connection.CONTAINER_ALL_CLIENTS = 'all_clients';
-
-  connection.MESSAGE_FOR_WELCOME = 'Welcome user! :)';
-  connection.MESSAGE_FOR_GOODBYE = 'Goodbye user! :)';
-
-  var channels = [
-    'new_client_connected',
-    'get_all_clients'
-  ];
-  connection.state = 'init';
-  // ----
-  var userId = null;
-  connection.channels = channels;
+  var channels_specs = null;
+  connection.url = 'localhost:3000/websocket';
   connection.dispatcher = null;
   connection.opened = false;
+  connection.channels = [];
+  connection.callbacks = null;
 
   connection.init = function(params, cb){
     params = params || {}; // we can put into also all the channel provided by server.
-    userId = params.userId;
-
-    if (!userId) {
-      connection.state = 'error';
-      return ;
+    channels_specs = params.channels_specs;
+    if (params.url) {
+      connection.url = params.url;
     }
-
-    if (typeof params.url !== 'string' && params.url === '') { return;}
-
-    connection.dispatcher = new WebSocketRails(params.url);
-    connection.state = 'connecting';
-    connection.subscribeAndBindChannels();
-    connection.addCallbacks(params.callbacks);
-
+    if (!channels_specs) { return; }
+    connection.callbacks = params.callbacks;
+    return this;
   };
 
-  connection.subscribeAndBindChannels = function(){
-    for (var i = 0; i < channels.length; i++){
-      var channel = channels[i];
-      connection.channels[channel] = connection.dispatcher.subscribe(channel);
-      connection.channels[channel].bind(channel, cbBindChannel.bind(this, channel));
+  connection.start = function(cb){
+    var cb_on_open = function(){
+      console.log('ciao');
+      cb.on_open();
+      connection.callbacks.on_open();
+    };
+    if (!connection.dispatcher){
+      connection.dispatcher = new WebSocketRails(connection.url);
+      subscribeAndBindChannels(channels_specs);
+      addMainCallbacks(cb_on_open,connection.callbacks.connection_closed,null);
     }
   };
 
-  var cbBindChannel = function(channel,data){
-    console.log(channel + ' event received: ' + data);
+  var subscribeAndBindChannels = function(channels_specs){
+    for (var channel_specs in channels_specs){
+      channel_specs = channels_specs[channel_specs];
+      var channel_name = channel_specs.channelName; // remove this
+      connection.channels[channel_name] = connection.dispatcher.subscribe(channel_name);
+      var events = channel_specs.events;
+
+      for (var event in events){
+        connection.channels[channel_name].bind(
+          events[event].event_name,
+          events[event].bindFunction
+        ); // how to test?
+      }
+    }
   };
 
-  connection.addCallbacks = function(cbs){
+  var addMainCallbacks = function(on_open,connection_closed,connection_error){
     var dispatcher = connection.dispatcher;
-    dispatcher.on_open = cbs.on_open;
-    dispatcher.connection_closed = cbs.on_close;
-    dispatcher.connection_error = cbs.on_error;
+    connection.dispatcher.on_open = on_open;
+    connection.dispatcher.connection_closed = connection_closed ;
+    connection.dispatcher.connection_error = connection_error ;
+  };
+
+  connection.sendOnChannel = function(channel, params){
+    params = params || {};
+    console.log(connection.channels[channel].trigger);
+    setTimeout( // why? there is come callback anywhere?
+      function(){
+        connection.channels[channel].trigger(params.event_name, params.message);
+      },
+    150);
   };
 
   connection.disconnect = function(data){
-    connection.dispatcher.connection_closed();
+    connection.dispatcher.disconnect();
+    // connection.dispatcher.close();
   };
 
-  // connection.on_open = function(data){
-  //   connection.state = 'opened';
-  //
-  //   var successConnection = function(opts){ // MOVE THIS FUNCTION IN ANOTHER CLASS
-  //     opts = opts || {};
-  //     dom.id(connection.DIV_ID_WELCOME_USER).innerHTML = connection.MESSAGE_FOR_WELCOME;
-  //     var elem = dom.createElement('div',userId);
-  //     var target = dom.id('all_clients');
-  //     dom.insertElement(elem,target);
-  //   };
-  //   successConnection();
-  // };
-  //
-  // connection.on_close = function(){
-  //   connection.state = 'closed';
-  //
-  //   var elem = dom.id(connection.DIV_ID_GOODBYE_USER);
-  //   elem.innerHTML = connection.MESSAGE_FOR_GOODBYE;
-  //   var elemToRemove = dom.id(userId);
-  //   dom.remove(elemToRemove);
-  // };
-
-  connection.on_error = function(data){
-    console.log('on error' + data);
-  };
-
-  connection.send = function(params){
-    params = params || {};
-    // channel.trigger('event_name', params);
-    // TO DO:
-  };
   connection.unsubscribeChannel = function(channel){
     connection.channels[channel].destroy();
   };
