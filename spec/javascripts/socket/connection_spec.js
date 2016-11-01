@@ -4,7 +4,6 @@
   'use strict';
 
   var channel_example = 'channel_example';
-  var usedId = 'test-id';
   var opts = null;
   var url = 'localhost:3000/websocket';
   var fakeDispatcher = {
@@ -69,9 +68,9 @@
       it('has connection_closed callback',function(){
         expect(connection.dispatcher.connection_closed).toBe(opts.callbacks.connection_closed);
       });
-      it('has connection_error callback',function(){
-        expect(connection.dispatcher.connection_error).toBe(opts.callbacks.connection_error);
-      });
+      // it('has connection_error callback',function(){
+      //   expect(connection.dispatcher.connection_error).toBe(opts.callbacks.connection_error);
+      // });
       describe('passed channel', function(){
         it('is subscribed', function(){
           expect(connection.channels[channel_example]).toBeDefined();
@@ -94,12 +93,15 @@
     });
 
     describe('sendOnChannel()', function(){
-      it('is called with options',function(){
+      it('is called with options',function(done){
         var optsForSend = {event_name:'test-event', message: 'a message'};
         var fakeSendMsg = jasmine.createSpy();
         connection.channels[channel_example] = {trigger: fakeSendMsg};
         connection.sendOnChannel(channel_example,optsForSend);
-        expect(connection.channels[channel_example].trigger).toHaveBeenCalledWith('test-event','a message');
+        setTimeout(function(){
+          expect(connection.channels[channel_example].trigger).toHaveBeenCalledWith('test-event','a message');
+          done();
+        }, 200);
       });
     });
 
@@ -111,4 +113,4 @@
 
   });
 
-})(window._chess.socket.connection );
+})(window._chess.socket.connection);

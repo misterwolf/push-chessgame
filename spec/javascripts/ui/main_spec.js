@@ -9,7 +9,9 @@
   var goodbyeMessage = 'Goodbye!';
   var channel_name = 'channel_example';
   var userId = 'test-id';
+  var testName = 'test-name';
   var anotherUserId = 'test-another-id';
+  var exampleUser = {id:userId,name:testName};
 
   var stubConnection = {
     init: jasmine.createSpy(),
@@ -24,8 +26,11 @@
     connection: stubConnection
   };
 
+  var user = {
+    id: userId
+  };
+
   var opts = {
-    currentUserId: userId
   };
 
   ui.mainChannel = stubMainChannel; // stubbing all
@@ -45,7 +50,7 @@
       });
 
       it('defines and disable all the buttons', function(){ // ? disableAllBtns will be called before loadFixtures, right?
-        ui.init(opts);
+        ui.init(user, opts);
         for (var btn in ui.btns){
           expect(ui.btns[btn]).toHaveClass('disabled');
           expect(ui.btns[btn]).toBeDefined();
@@ -56,7 +61,7 @@
         describe('and if button connect is clicked', function(){
           beforeEach(function(){
             loadFixtures('ui/elements.html');
-            ui.init(opts);
+            ui.init(user, opts);
             btns.connect.dispatchEvent(event);
           });
           it('add spinner and calls start mainChannel initilization',function(){
@@ -67,7 +72,7 @@
         describe('and if button close is clicked', function(){
           beforeEach(function(){
             loadFixtures('ui/elements.html');
-            ui.init(opts);
+            ui.init(user, opts);
             btns.close.dispatchEvent(event);
           });
           it('add spinner and calls close mainChannel connection',function(){
@@ -100,13 +105,12 @@
 
       beforeEach(function(){
         loadFixtures('ui/elements.html');
-        ui.init(opts);
+        ui.init(user, opts);
         ui.onOpen();
       });
 
       it('write the welcome message and add user info in the page',function(){
         expect($(messageContainer).text()).toBe(welcomeMessage);
-        expect($('#' + userId).length).toBe(1);
       });
 
       it('disable connect and enable close',function(){
@@ -122,7 +126,7 @@
     describe('has a method onClose() that',function(){
       beforeEach(function(){
         loadFixtures('ui/elements.html');
-        ui.init(opts);
+        ui.init(user, opts);
       });
 
       it('write the goodbye message and remove user info on all clients div',function(){
@@ -149,9 +153,9 @@
         loadFixtures('ui/elements.html');
         ui.init(opts);
       });
-      it('writes new user in the proper div',function(){
+      it('writes new user info in the proper div',function(){
         var el = $(allClientsContainer);
-        ui.addInfoNewClient({id:anotherUserId}); // i think data will be sent in this way.
+        ui.addInfoNewClient(exampleUser); // i think data will be sent in this way.
         var userDiv = $('#' + anotherUserId);
         expect(userDiv[0]).toBeDefined();
         expect(userDiv.parent()[0]).toBe(el[0]);

@@ -31,15 +31,10 @@
   };
 
   connection.start = function(cb){
-    var cb_on_open = function(){
-      console.log('ciao');
-      cb.on_open();
-      connection.callbacks.on_open();
-    };
     if (!connection.dispatcher){
       connection.dispatcher = new WebSocketRails(connection.url);
       subscribeAndBindChannels(channels_specs);
-      addMainCallbacks(cb_on_open,connection.callbacks.connection_closed,null);
+      addMainCallbacks(connection.callbacks.on_open,connection.callbacks.connection_closed,null);
     }
   };
 
@@ -68,7 +63,6 @@
 
   connection.sendOnChannel = function(channel, params){
     params = params || {};
-    console.log(connection.channels[channel].trigger);
     setTimeout( // why? there is come callback anywhere?
       function(){
         connection.channels[channel].trigger(params.event_name, params.message);

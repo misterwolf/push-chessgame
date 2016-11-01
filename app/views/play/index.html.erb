@@ -23,5 +23,5 @@
 </a>
 
 <script>
-  _chess.ui.main.init({currentUserId:<%= current_user.id %>});
+  _chess.ui.main.init({id:<%= current_user.id %>, name: '<%= current_user.name %>'});
 </script>

@@ -40,7 +40,7 @@ stylesheets:
 #   - 'helpers/**/*.js'
 #
 helpers:
-  - 'helpers/**/*_[s]pec.js'
+  - 'helpers/*_[s]pec.js'
 
 # spec_files
 #

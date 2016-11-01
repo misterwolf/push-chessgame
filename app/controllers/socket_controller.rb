@@ -18,48 +18,57 @@ class SocketController < WebsocketRails::BaseController
     controller_store[:message_count] = 0
   end
 
+  def get_all_clients
+    users = WebsocketRails.users
+    logger.info(users)
+    respond_to do |format|
+      format.html { render action: "get_all_clients", json: users }
+      format.json { render json: users, status: :readed, location: users }
+    end
+  end
+
   # not use controller when use channels
 
-  def new_client_connected # the action of the channel
-    begin
-      params['action'] = 'new_client_connected'
-      params['content'] = [['id'=>current_user.id,'email'=> current_user.email]]
-      WebsocketRails[:new_client_connected].trigger 'new_client_info', response_message(params)
-    rescue Exception => e
-      params['action'] = 'new_client_connected'
-      params['error'] = {'exist' => 1,'log' => e}
-      WebsocketRails[:new_client_connected].trigger 'new_client_info', response_message(params)
-    end
-  end
-
-  def get_all_clients #for each client this method will be called once a time.
-    users = WebsocketRails.users.users
-    # i can't pass WebsocketRails.users directly to client. I have to map only the ids. why?
-    # it is better: let's pass less info to client.
-    begin
-      # remove current user.
-      # what is the users will become 971297847 ? uhm, can we set a limit for channel?
-      users_mapped = users.reject{ |user| user == current_user.id.to_s }.map { |user,websocket| user }
-      params['action'] = 'get_all_clients'
-      params['content'] = User.find(users_mapped).map{|user| ['id'=>user.id, 'email'=> user.email]}
-      WebsocketRails[:get_all_clients].trigger 'all_clients_info', response_message(params)
-    rescue Exception => e
-      params['action'] = 'get_all_clients'
-      params['error'] = {'exist' => 1,'log' => e}
-      WebsocketRails[:get_all_clients].trigger 'all_clients_info', response_message(params)
-    end
-  end
-
-  def client_disconnected
-    begin
-      params['action'] = 'client_disconnected'
-      params['content'] = [['id'=>current_user.id,'email'=> current_user.email]]
-      WebsocketRails[:client_disconnected].trigger 'remove_client_info', response_message(params)
-    rescue Exception => e
-      params['action'] = 'client_disconnected'
-      params['error'] = {'exist' => 1,'log' => e}
-      WebsocketRails[:client_disconnected].trigger 'remove_client_info', response_message(params)
-    end
-  end
+  # def new_client_connected # the action of the channel
+  #   begin
+  #     params['action'] = 'new_client_connected'
+  #     params['content'] = [['id'=>current_user.id,'email'=> current_user.email]]
+  #     WebsocketRails[:new_client_connected].trigger 'new_client_info', response_message(params)
+  #   rescue Exception => e
+  #     params['action'] = 'new_client_connected'
+  #     params['error'] = {'exist' => 1,'log' => e}
+  #     WebsocketRails[:new_client_connected].trigger 'new_client_info', response_message(params)
+  #   end
+  # end
+  #
+  # def get_all_clients #for each client this method will be called once a time.
+  #   users = WebsocketRails.users.users
+  #   # i can't pass WebsocketRails.users directly to client. I have to map only the ids. why?
+  #   # it is better: let's pass less info to client.
+  #   begin
+  #     # remove current user.
+  #     # what is the users will become 971297847 ? uhm, can we set a limit for channel?
+  #     users_mapped = users.reject{ |user| user == current_user.id.to_s }.map { |user,websocket| user }
+  #     params['action'] = 'get_all_clients'
+  #     params['content'] = User.find(users_mapped).map{|user| ['id'=>user.id, 'email'=> user.email]}
+  #     WebsocketRails[:get_all_clients].trigger 'all_clients_info', response_message(params)
+  #   rescue Exception => e
+  #     params['action'] = 'get_all_clients'
+  #     params['error'] = {'exist' => 1,'log' => e}
+  #     WebsocketRails[:get_all_clients].trigger 'all_clients_info', response_message(params)
+  #   end
+  # end
+  #
+  # def client_disconnected
+  #   begin
+  #     params['action'] = 'client_disconnected'
+  #     params['content'] = [['id'=>current_user.id,'email'=> current_user.email]]
+  #     WebsocketRails[:client_disconnected].trigger 'remove_client_info', response_message(params)
+  #   rescue Exception => e
+  #     params['action'] = 'client_disconnected'
+  #     params['error'] = {'exist' => 1,'log' => e}
+  #     WebsocketRails[:client_disconnected].trigger 'remove_client_info', response_message(params)
+  #   end
+  # end
 
 end

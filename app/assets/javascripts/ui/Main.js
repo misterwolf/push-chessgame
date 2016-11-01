@@ -28,10 +28,10 @@
     // request_chat: null
   };
 
-  ui.init = function(opts){
+  ui.init = function(user, opts){
     opts = opts || {};
 
-    currentUserId = opts.currentUserId;
+    currentUserId = user.id;
 
     if (!currentUserId){
       return null;
@@ -54,12 +54,12 @@
     disableBtns();
 
     dom.addEventListener(ui.btns.connect, 'click', bindConnect);
-    dom.addEventListener(ui.btns.close, 'click', bindClose);
+    dom.addEventListener(ui.btns.close,   'click', bindClose);
     // move them in another channel file
     // dom.addEventListener(ui.btns.request_chat, 'click', bindRequestChat);
     // dom.addEventListener(ui.btns.request_match, 'click', bindRequestMatch);
 
-    ui.mainChannel.init(opts);
+    ui.mainChannel.init(user, currentUserId, opts);
 
   };
 
@@ -88,7 +88,7 @@
   ui.addInfoNewClient = function(user){
     // TO DO: try catch!
     user = user || {};
-    addInfoUser(user.id);
+    addInfoUser(user);
   };
 
   ui.removeItem = function(userId){
@@ -146,9 +146,9 @@
     dom.id(DIV_ID_GENERAL_MESSAGE_USER).innerHTML = msg;
   };
 
-  var addInfoUser = function(userId){
-    var elem = dom.createElement('div', userId);
-    elem.innerHTML = '<p>' + userId + '</p>';
+  var addInfoUser = function(user){
+    var elem = dom.createElement('div', user.id);
+    elem.innerHTML = '<p>' + user.name + '</p>';
     var target = dom.id(DIV_ID_CONTAINER_ALL_CLIENTS);
     dom.insertElement(elem,target);
   };
