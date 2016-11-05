@@ -1,3 +1,10 @@
+//= require websocket_rails/main
+//= require namespace
+//= require lib/namespace
+//= require lib/ajax
+//= require lib/json
+//= require lib/dom
+//= require socket/namespace
 //= require ui/Main.js
 
 (function(ui, /**/ mainChannel, connection, /**/dom){
@@ -26,6 +33,10 @@
     connection: stubConnection
   };
 
+  var stubDom = {
+    addPreventDefault: jasmine.createSpy()
+  };
+
   var user = {
     id: userId
   };
@@ -33,6 +44,7 @@
   var opts = {
   };
 
+  // ui.dom = stubDom; // stubbing all
   ui.mainChannel = stubMainChannel; // stubbing all
 
   var event = document.createEvent('HTMLEvents');
@@ -50,13 +62,15 @@
       });
 
       it('defines and disable all the buttons', function(){ // ? disableAllBtns will be called before loadFixtures, right?
+        spyOn(dom,'addPreventDefault');
         ui.init(user, opts);
         for (var btn in ui.btns){
           expect(ui.btns[btn]).toHaveClass('disabled');
+          expect(dom.addPreventDefault).toHaveBeenCalled();
           expect(ui.btns[btn]).toBeDefined();
         }
       });
-      describe('bind the buttons', function(){
+      describe('binds the buttons', function(){
         var btns = ui.btns;
         describe('and if button connect is clicked', function(){
           beforeEach(function(){
@@ -64,7 +78,7 @@
             ui.init(user, opts);
             btns.connect.dispatchEvent(event);
           });
-          it('add spinner and calls start mainChannel initilization',function(){
+          it('adds a spinner and calls start mainChannel initilization',function(){
             expect(btns.connect.getAttribute('class')).toContain('spinner');
             expect(ui.mainChannel.start).toHaveBeenCalled();
           });
@@ -75,7 +89,7 @@
             ui.init(user, opts);
             btns.close.dispatchEvent(event);
           });
-          it('add spinner and calls close mainChannel connection',function(){
+          it('adds a spinner and calls close mainChannel connection',function(){
             expect(btns.close.getAttribute('class')).toContain('spinner');
             expect(ui.mainChannel.closeConnection).toHaveBeenCalled();
           });
@@ -156,7 +170,7 @@
       it('writes new user info in the proper div',function(){
         var el = $(allClientsContainer);
         ui.addInfoNewClient(exampleUser); // i think data will be sent in this way.
-        var userDiv = $('#' + anotherUserId);
+        var userDiv = $('#' + exampleUser.id);
         expect(userDiv[0]).toBeDefined();
         expect(userDiv.parent()[0]).toBe(el[0]);
       });

@@ -87,4 +87,30 @@
     obj.addEventListener( type, cb, true );
   };
 
+  /**
+    * Remove Event Listener
+    * @param {Node}     obj  Node to bind to
+    * @param {String}   type Event name
+    * @param {Function} fn   Callback
+    *
+    * @function
+    * @memberof _iub.jlib.dom
+    */
+  dom.removeEventListener = function( obj, type, fn, useCapture ) {
+    useCapture = useCapture || false;
+    obj.removeEventListener( type, fn, useCapture );
+  };
+
+  var preventDefault = function(evt){
+    return false;
+  };
+
+  dom.addPreventDefault = function(elem){
+    dom.addEventListener(elem, 'click', preventDefault);
+  };
+
+  dom.removePreventDefault = function(elem){
+    dom.removeEventListener(elem, 'click', preventDefault, true);
+  };
+
 })(window._chess.lib.dom = {});

@@ -66,7 +66,7 @@
 
       it('should send request for get all clients',function(done){
         jasmine.Ajax.install();
-        mainChannel.init(user,opts);
+        mainChannel.init(user,currentUserId,opts);
         mainChannel.start();
         setTimeout(function(){
           var request = jasmine.Ajax.requests.mostRecent();
@@ -83,7 +83,7 @@
       // test is internal callback is called ( cb(data) )
       var channels_specs = null;
       beforeEach(function(){
-        mainChannel.init(user,opts);
+        mainChannel.init(user,currentUserId,opts);
         channels_specs = mainChannel.channels_specs;
       });
 

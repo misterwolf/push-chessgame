@@ -40,6 +40,29 @@
       });
     });
 
+    describe('add and removePreventDefault',function(){ // has sense?
+      var elem = null;
+      beforeEach(function(){
+        elem = dom.id('btn');
+        dom.addPreventDefault(elem);
+      });
+      it('elem is default prevented',function(){
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('click', true, true);
+        event.preventDefault = jasmine.createSpy();
+        elem.dispatchEvent(event);
+        expect(event.preventDefault).toHaveBeenCalled();
+      });
+      it('elem is not prevented anymore',function(){
+        dom.removePreventDefault(elem);
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('click', true, true);
+        event.preventDefault = jasmine.createSpy();
+        elem.dispatchEvent(event);
+        expect(event.preventDefault).not.toHaveBeenCalled();
+      });
+    });
+
     describe('createElement()',function(){
       var elem = null;
       var tag = 'div';

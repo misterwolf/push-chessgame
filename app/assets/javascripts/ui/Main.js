@@ -1,7 +1,11 @@
 //= require websocket_rails/main
-//= require ui/namespace
-//= require socket/MainChannel
+//= require namespace
+//= require lib/namespace
+//= require lib/ajax
+//= require lib/json
 //= require lib/dom
+//= require socket/namespace
+//= require ui/namespace
 
 (function(ui, mainChannel, dom){
   'use strict';
@@ -19,14 +23,9 @@
   var currentUserId = null;
 
   ui.mainChannel = mainChannel;
+  ui.dom = dom;
 
-  // ui.close
-  ui.btns = {
-    connect: null,
-    // close: null
-    // request_match: null,
-    // request_chat: null
-  };
+  ui.btns = {};
 
   ui.init = function(user, opts){
     opts = opts || {};
@@ -52,6 +51,7 @@
     // ui.btns.request_match = dom.id(DIV_ID_REQUEST_CHAT);
 
     disableBtns();
+    enableBtn(ui.btns.connect);
 
     dom.addEventListener(ui.btns.connect, 'click', bindConnect);
     dom.addEventListener(ui.btns.close,   'click', bindClose);
@@ -98,11 +98,13 @@
   function disableBtn(btn){
     btn.classList.remove('enabled');
     btn.classList.add('disabled');
+    // dom.addPreventDefault(btn);
   }
 
   function enableBtn(btn){
     btn.classList.add('enabled');
     btn.classList.remove('disabled');
+    // dom.removePreventDefault(btn);
   }
 
   function addSpinner(btn){
@@ -125,21 +127,27 @@
     }
   }
 
-  function bindConnect(){
-    addSpinner(ui.btns.connect);
-    ui.mainChannel.start();
+  function bindConnect(evt){
+    if (evt.target.className.match(/enabled/)){
+      // write a great module that remove event listener,
+      // keeps it and reattach again when element is active again
+      addSpinner(ui.btns.connect);
+      ui.mainChannel.start();
+    }
   }
-  function bindClose(){
-    addSpinner(ui.btns.close);
-    ui.mainChannel.closeConnection();
+  function bindClose(evt){
+    if (evt.target.className.match(/enabled/)){
+      addSpinner(ui.btns.close);
+      ui.mainChannel.closeConnection();
+    }
   }
   // these two functions will be moved in another channel file
-  function bindRequestChat(){
-    ui.mainChannel.requestChat();
-  }
-  function bindRequestMatch(){
-    ui.mainChannel.requestMatch();
-  }
+  // function bindRequestChat(){
+  //   ui.mainChannel.requestChat();
+  // }
+  // function bindRequestMatch(){
+  //   ui.mainChannel.requestMatch();
+  // }
 
   // callbacks ----
   var fillGeneralMessage = function(msg){

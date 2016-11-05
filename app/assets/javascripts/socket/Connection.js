@@ -1,8 +1,3 @@
-//= require websocket_rails/main
-//= require namespace
-//= require socket/namespace
-//= require lib/dom
-
 (function(connection, dom){
   'use strict';
 
