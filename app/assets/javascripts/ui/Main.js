@@ -39,7 +39,7 @@
     opts.callbacks = {
       get_all_clients: ui.addInfoNewClients,
       new_client_connected: ui.addInfoNewClient,
-      client_disconnected: ui.removeItem,
+      client_disconnected: ui.removeUser,
       on_open: ui.onOpen,
       connection_closed: ui.onClose
     };
@@ -73,7 +73,7 @@
 
   ui.onClose = function(){
     fillGeneralMessage(MESSAGE_FOR_GOODBYE);
-    ui.removeItem(currentUserId);
+    ui.removeUser(currentUserId);
     disableBtns();
     enableBtn(ui.btns.connect);
   };
@@ -91,9 +91,13 @@
     addInfoUser(user);
   };
 
-  ui.removeItem = function(userId){
+  ui.removeUser = function(userId){
     dom.remove( dom.id(userId) );
   };
+
+  function emptyAllClients(){
+    dom.id(DIV_ID_CONTAINER_ALL_CLIENTS).innerHTML = '';
+  }
 
   function disableBtn(btn){
     btn.classList.remove('enabled');
@@ -135,6 +139,7 @@
       ui.mainChannel.start();
     }
   }
+
   function bindClose(evt){
     if (evt.target.className.match(/enabled/)){
       addSpinner(ui.btns.close);

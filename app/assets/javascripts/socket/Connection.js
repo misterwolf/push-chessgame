@@ -67,6 +67,7 @@
 
   connection.disconnect = function(data){
     connection.dispatcher.disconnect();
+    connection.dispatcher = null;
     // connection.dispatcher.close();
   };
 

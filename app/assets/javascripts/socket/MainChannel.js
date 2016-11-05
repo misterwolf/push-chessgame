@@ -98,13 +98,25 @@
     mainChannel.connection.sendOnChannel('new_client_connected',
     {
       event_name: 'new_client_info', // no good: generic
-      message:{ user: {id: mainChannel.user.id, name: mainChannel.user.name }}}
+      message:{ user: mainChannel.user }}
     );
   };
 
-  mainChannel.closeConnection = function(){
+  mainChannel.closeConnection = function(cb){
     // this.connection = null; try also this
-    this.connection.disconnect();
+    mainChannel.connection.sendOnChannel('client_disconnected',
+    {
+      event_name: 'remove_client_info',
+      message:{ user: mainChannel.user.id }}
+    );
+    setTimeout(function(){
+      mainChannel.connection.disconnect();
+    },200);
+    if (cb)
+    {
+      cb();
+    }
+
   };
 
   // };
