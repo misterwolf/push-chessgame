@@ -16,6 +16,7 @@
         dispatcher: function(){},
         init: function() {return this;},
         start: jasmine.createSpy(),
+        disconnect: jasmine.createSpy(),
         sendOnChannel: jasmine.createSpy()
       };
 
@@ -39,6 +40,25 @@
 
     });
 
+    describe('has a method closeConnection that',function(){
+
+      it('advice server that current client is gone and call callback',function(){
+        var cb = jasmine.createSpy();
+        mainChannel.closeConnection(cb);
+        expect(mainChannel.connection.disconnect).toHaveBeenCalled();
+        expect(mainChannel.connection.sendOnChannel).toHaveBeenCalledWith(
+          'client_disconnected',
+          {
+            event_name: 'remove_client_info',
+            message: {
+              user: mainChannel.user
+            }
+          }
+        );
+        expect(cb).toHaveBeenCalled();
+      });
+    });
+
     describe('start()',function(){
 
       it('should call connection.start',function(){
@@ -55,10 +75,7 @@
           {
             event_name: 'new_client_info',
             message: {
-              user: {
-                id: mainChannel.user.id,
-                name: mainChannel.user.name
-              }
+              user: mainChannel.user
             }
           }
         );
@@ -66,7 +83,7 @@
 
       it('should send request for get all clients',function(done){
         jasmine.Ajax.install();
-        mainChannel.init(user,opts);
+        mainChannel.init(user, currentUserId, opts);
         mainChannel.start();
         setTimeout(function(){
           var request = jasmine.Ajax.requests.mostRecent();
@@ -83,7 +100,7 @@
       // test is internal callback is called ( cb(data) )
       var channels_specs = null;
       beforeEach(function(){
-        mainChannel.init(user,opts);
+        mainChannel.init(user, currentUserId, opts);
         channels_specs = mainChannel.channels_specs;
       });
 

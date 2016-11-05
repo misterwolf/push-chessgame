@@ -18,15 +18,6 @@ class SocketController < WebsocketRails::BaseController
     controller_store[:message_count] = 0
   end
 
-  def get_all_clients
-    users = WebsocketRails.users
-    logger.info(users)
-    respond_to do |format|
-      format.html { render action: "get_all_clients", json: users }
-      format.json { render json: users, status: :readed, location: users }
-    end
-  end
-
   # not use controller when use channels
 
   # def new_client_connected # the action of the channel

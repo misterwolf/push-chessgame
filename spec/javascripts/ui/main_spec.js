@@ -41,6 +41,8 @@
   describe('The UiInterface ',function(){
 
     describe('has a method init() that', function(){
+      var btns = ui.btns;
+
       beforeEach(function(){
         loadFixtures('ui/elements.html');
       });
@@ -56,47 +58,45 @@
           expect(ui.btns[btn]).toBeDefined();
         }
       });
-      describe('bind the buttons', function(){
-        var btns = ui.btns;
-        describe('and if button connect is clicked', function(){
-          beforeEach(function(){
-            loadFixtures('ui/elements.html');
-            ui.init(user, opts);
-            btns.connect.dispatchEvent(event);
-          });
-          it('add spinner and calls start mainChannel initilization',function(){
-            expect(btns.connect.getAttribute('class')).toContain('spinner');
-            expect(ui.mainChannel.start).toHaveBeenCalled();
-          });
+      describe('bind connect button', function(){
+        beforeEach(function(){
+          loadFixtures('ui/elements.html');
+          ui.init(user, opts);
+          btns.connect.dispatchEvent(event);
         });
-        describe('and if button close is clicked', function(){
-          beforeEach(function(){
-            loadFixtures('ui/elements.html');
-            ui.init(user, opts);
-            btns.close.dispatchEvent(event);
-          });
-          it('add spinner and calls close mainChannel connection',function(){
-            expect(btns.close.getAttribute('class')).toContain('spinner');
-            expect(ui.mainChannel.closeConnection).toHaveBeenCalled();
-          });
+        it('if triggered adds a spinner and calls start mainChannel initilization',function(){
+          expect(btns.connect.getAttribute('class')).toContain('spinner');
+          expect(ui.mainChannel.start).toHaveBeenCalled();
         });
-
-        // move these two in another channel file
-        xdescribe('and if button request chat is clicked', function(){
-          it('add spinner class',function(){
-
-          });
-          it('remove spinner class on complete',function(){
-
-          });
+      });
+      describe('bind close button', function(){
+        beforeEach(function(){
+          loadFixtures('ui/elements.html');
+          ui.init(user, opts);
+          btns.close.dispatchEvent(event);
         });
-        xdescribe('and if button request match is clicked', function(){
-          it('add spinner class',function(){
+        it('if triggered adds a spinner and calls close mainChannel connection',function(){
+          expect(btns.close.getAttribute('class')).toContain('spinner');
+          expect($(allClientsContainer).length).toBe(0);
+          expect(ui.mainChannel.closeConnection).toHaveBeenCalled();
+        });
+      });
 
-          });
-          it('remove spinner class on complete',function(){
+      // move these two in another channel file
+      xdescribe('and if button request chat is clicked', function(){
+        it('add spinner class',function(){
 
-          });
+        });
+        it('remove spinner class on complete',function(){
+
+        });
+      });
+      xdescribe('and if button request match is clicked', function(){
+        it('add spinner class',function(){
+
+        });
+        it('remove spinner class on complete',function(){
+
         });
       });
     });
@@ -156,7 +156,7 @@
       it('writes new user info in the proper div',function(){
         var el = $(allClientsContainer);
         ui.addInfoNewClient(exampleUser); // i think data will be sent in this way.
-        var userDiv = $('#' + anotherUserId);
+        var userDiv = $('#' + exampleUser.id);
         expect(userDiv[0]).toBeDefined();
         expect(userDiv.parent()[0]).toBe(el[0]);
       });
@@ -181,7 +181,7 @@
       });
     });
 
-    describe('has a method removeItem() that',function(){
+    describe('has a method removeUser() that',function(){
       beforeEach(function(){
         loadFixtures('ui/elements.html');
         ui.init(opts);
@@ -189,9 +189,9 @@
       it('removes client from proper div',function(){
         var el = $(allClientsContainer);
         el.append('<div id="' + anotherUserId + '"></div>');
-        ui.removeItem(anotherUserId); // i think data will be sent in this way.
-        var userDiv1 = $('#' + anotherUserId);
-        expect(userDiv1[0]).not.toBeDefined();
+        ui.removeUser(anotherUserId); // i think data will be sent in this way.
+        var userDiv = $('#' + anotherUserId);
+        expect(userDiv[0]).not.toBeDefined();
       });
     });
 
