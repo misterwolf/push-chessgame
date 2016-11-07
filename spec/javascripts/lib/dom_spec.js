@@ -40,54 +40,71 @@
       });
     });
 
-    describe('createElement()',function(){
+    describe('has method add and removePreventDefault that ',function(){ // has sense?
       var elem = null;
-      var tag = 'div';
-      it('tag is defined',function(){
-        elem = dom.createElement(tag);
-        expect(elem.tagName).toBe(tag.toUpperCase());
+      beforeEach(function(){
+        elem = dom.id('btn');
+        dom.addPreventDefault(elem);
       });
-      describe('with class name',function(){
-        var testClass = 'test-class';
-        elem = dom.createElement(tag, null, testClass);
-        it('element has class',function(){
-          expect(elem.className).toBe(testClass);
-        });
+      it('preventDefault an element',function(done){
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('click', true, true);
+        event.preventDefault = jasmine.createSpy();
+        elem.dispatchEvent(event);
+        setTimeout(function(){
+          expect(event.preventDefault).toHaveBeenCalled();
+          done();
+        },200);
       });
-      describe('with id',function(){
-        var id = 'test-id';
-        it('element has id',function(){
-          elem = dom.createElement(tag, id);
-          expect(elem.id).toBe(id);
-        });
-      });
-
-      describe('with both',function(){
-        var id = 'test-id';
-        var testClass = 'test-class';
-        it('element has id and class',function(){
-          elem = dom.createElement(tag, id, testClass);
-          expect(elem.className).toBe(testClass);
-          expect(elem.id).toBe(id);
-        });
-      });
-
-      describe('addEventListener', function(){
-        it('event is triggered', function(done){
-          var elem = dom.id('btn');
-
-          dom.addEventListener(elem, 'click', function(evt){
-            expect(evt.target).toBe(elem);
-            done();
-          });
-          // move event creator on helper
-          var event = document.createEvent('HTMLEvents');
-          event.initEvent('click', true, true);
-          elem.dispatchEvent(event);
-          // $(elem).click();
-        });
+      it('and remove prevention',function(){
+        dom.removePreventDefault(elem);
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('click', true, true);
+        event.preventDefault = jasmine.createSpy();
+        elem.dispatchEvent(event);
+        expect(event.preventDefault).not.toHaveBeenCalled();
       });
     });
 
+    describe('createElement()',function(){
+      var elem = null;
+      var tag = 'div';
+      var testClass = 'test-class';
+      var id = 'test-id';
+
+      it('define the tag',function(){
+        elem = dom.createElement(tag);
+        expect(elem.tagName).toBe(tag.toUpperCase());
+      });
+      it('add class to html tag if specified',function(){
+        elem = dom.createElement(tag, null, testClass);
+        expect(elem.className).toBe(testClass);
+      });
+      it('add id to html tag if specified',function(){
+        elem = dom.createElement(tag, id);
+        expect(elem.id).toBe(id);
+      });
+      it('add class and id to html tag if both are specified',function(){
+        elem = dom.createElement(tag, id, testClass);
+        expect(elem.className).toBe(testClass);
+        expect(elem.id).toBe(id);
+      });
+    });
+
+    describe('addEventListener', function(){
+      it('event is triggered', function(done){
+        var elem = dom.id('btn');
+
+        dom.addEventListener(elem, 'click', function(evt){
+          expect(evt.target).toBe(elem);
+          done();
+        });
+        // move event creator on helper
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('click', true, true);
+        elem.dispatchEvent(event);
+        // $(elem).click();
+      });
+    });
   });
 })(window._chess.lib.dom);

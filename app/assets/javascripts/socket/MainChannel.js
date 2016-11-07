@@ -1,10 +1,3 @@
-//= require websocket_rails/main
-//= require namespace
-//= require socket/namespace
-//= require socket/Connection
-//= require lib/dom
-//= require lib/ajax
-
 (function(mainChannel, connection, lib){
   'use strict';
   // var Mainsocket = function(){

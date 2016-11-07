@@ -42,20 +42,24 @@
 
     describe('has a method closeConnection that',function(){
 
-      it('advice server that current client is gone and call callback',function(){
+      it('advice server that current client is gone and call callback',function(done){
         var cb = jasmine.createSpy();
         mainChannel.closeConnection(cb);
-        expect(mainChannel.connection.disconnect).toHaveBeenCalled();
-        expect(mainChannel.connection.sendOnChannel).toHaveBeenCalledWith(
-          'client_disconnected',
-          {
-            event_name: 'remove_client_info',
-            message: {
-              user: mainChannel.user
-            }
-          }
-        );
-        expect(cb).toHaveBeenCalled();
+        setTimeout(
+          function(){
+            expect(mainChannel.connection.disconnect).toHaveBeenCalled();
+            expect(mainChannel.connection.sendOnChannel).toHaveBeenCalledWith(
+              'client_disconnected',
+              {
+                event_name: 'remove_client_info',
+                message: {
+                  user: mainChannel.user.id
+                }
+              }
+            );
+            expect(cb).toHaveBeenCalled();
+            done();
+          },201);
       });
     });
 

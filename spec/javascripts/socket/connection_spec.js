@@ -1,3 +1,10 @@
+//= require websocket_rails/main
+//= require namespace
+//= require lib/namespace
+//= require lib/ajax
+//= require lib/json
+//= require lib/dom
+//= require socket/namespace
 //= require socket/Connection.js
 
 (function(connection){

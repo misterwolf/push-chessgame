@@ -83,8 +83,33 @@
    * @param {string} element: element HTML
    * @param {eventName}: name of event
    */
-  dom.addEventListener = function(obj, type, cb){
-    obj.addEventListener( type, cb, true );
+  dom.addEventListener = function(obj, type, fn){
+    obj.addEventListener( type, fn, true );
+  };
+
+  /**
+    * Remove Event Listener
+    * @param {Node}     obj  Node to bind to
+    * @param {String}   type Event name
+    * @param {Function} fn   Callback
+    *
+    * @function
+    * @memberof _iub.jlib.dom
+    */
+  dom.removeEventListener = function( obj, type, fn, useCapture ) {
+    obj.removeEventListener( type, fn, !!useCapture );
+  };
+
+  var preventDefault = function(evt){
+    evt.preventDefault();
+  };
+
+  dom.addPreventDefault = function(elem){
+    dom.addEventListener(elem, 'click', preventDefault);
+  };
+
+  dom.removePreventDefault = function(elem){
+    dom.removeEventListener(elem, 'click', preventDefault, true);
   };
 
 })(window._chess.lib.dom = {});
