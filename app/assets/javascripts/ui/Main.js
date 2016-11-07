@@ -41,7 +41,7 @@
       new_client_connected: ui.addInfoNewClient,
       client_disconnected: ui.removeUser,
       on_open: ui.onOpen,
-      connection_closed: ui.onClose
+      // connection_closed: ui.onClose
     };
 
     ui.btns.connect = dom.id(DIV_ID_CONNECT);
@@ -50,11 +50,19 @@
     // ui.btns.request_chat = dom.id(DIV_ID_REQUEST_MATCH);
     // ui.btns.request_match = dom.id(DIV_ID_REQUEST_CHAT);
 
+    // TO DO: (note: **** )
+    // write a great module that remove event listener,
+    // keeps it and reattach again when element is active again
+    // if (evt.target.className.match(/enabled/)){
+
+    ui.btns.connect.fn = bindConnect;
+    ui.btns.close.fn = bindClose;
+
     disableBtns();
     enableBtn(ui.btns.connect);
 
-    dom.addEventListener(ui.btns.connect, 'click', bindConnect);
-    dom.addEventListener(ui.btns.close,   'click', bindClose);
+    // dom.addEventListener(ui.btns.connect, 'click', bindConnect);
+    // dom.addEventListener(ui.btns.close,   'click', bindClose);
     // move them in another channel file
     // dom.addEventListener(ui.btns.request_chat, 'click', bindRequestChat);
     // dom.addEventListener(ui.btns.request_match, 'click', bindRequestMatch);
@@ -68,15 +76,15 @@
     fillGeneralMessage(MESSAGE_FOR_WELCOME);
     // addInfoUser(currentUserId);
     enableBtns();
-    disableBtn(ui.btns.connect);
+    disableBtn(ui.btns.connect,bindConnect);
   };
 
-  ui.onClose = function(){
-    fillGeneralMessage(MESSAGE_FOR_GOODBYE);
-    ui.removeUser(currentUserId);
-    disableBtns();
-    enableBtn(ui.btns.connect);
-  };
+  // ui.onClose = function(){
+  //   fillGeneralMessage(MESSAGE_FOR_GOODBYE);
+  //   ui.removeUser(currentUserId);
+  //   disableBtns();
+  //   enableBtn(ui.btns.connect);
+  // };
 
   ui.addInfoNewClients = function(users){
     users = users || {};
@@ -102,13 +110,13 @@
   function disableBtn(btn){
     btn.classList.remove('enabled');
     btn.classList.add('disabled');
-    // dom.addPreventDefault(btn);
+    dom.removeEventListener(btn, 'click', btn.fn, true);
   }
 
   function enableBtn(btn){
     btn.classList.add('enabled');
     btn.classList.remove('disabled');
-    // dom.removePreventDefault(btn);
+    dom.addEventListener(btn, 'click', btn.fn);
   }
 
   function addSpinner(btn){
@@ -132,19 +140,17 @@
   }
 
   function bindConnect(evt){
-    if (evt.target.className.match(/enabled/)){
-      // write a great module that remove event listener,
-      // keeps it and reattach again when element is active again
-      addSpinner(ui.btns.connect);
-      ui.mainChannel.start();
-    }
+    addSpinner(ui.btns.connect);
+    ui.mainChannel.start();
   }
 
   function bindClose(evt){
-    if (evt.target.className.match(/enabled/)){
-      addSpinner(ui.btns.close);
-      ui.mainChannel.closeConnection();
-    }
+    fillGeneralMessage(MESSAGE_FOR_GOODBYE);
+    addSpinner(ui.btns.close);
+    emptyAllClients();
+    disableBtns();
+    enableBtn(ui.btns.connect);
+    ui.mainChannel.closeConnection();
   }
   // these two functions will be moved in another channel file
   // function bindRequestChat(){

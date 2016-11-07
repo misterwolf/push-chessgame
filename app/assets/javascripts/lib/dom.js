@@ -83,8 +83,8 @@
    * @param {string} element: element HTML
    * @param {eventName}: name of event
    */
-  dom.addEventListener = function(obj, type, cb){
-    obj.addEventListener( type, cb, true );
+  dom.addEventListener = function(obj, type, fn){
+    obj.addEventListener( type, fn, true );
   };
 
   /**
@@ -97,12 +97,11 @@
     * @memberof _iub.jlib.dom
     */
   dom.removeEventListener = function( obj, type, fn, useCapture ) {
-    useCapture = useCapture || false;
-    obj.removeEventListener( type, fn, useCapture );
+    obj.removeEventListener( type, fn, !!useCapture );
   };
 
   var preventDefault = function(evt){
-    return false;
+    evt.preventDefault();
   };
 
   dom.addPreventDefault = function(elem){

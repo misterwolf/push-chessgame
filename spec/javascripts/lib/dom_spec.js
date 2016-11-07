@@ -40,20 +40,23 @@
       });
     });
 
-    describe('add and removePreventDefault',function(){ // has sense?
+    describe('has method add and removePreventDefault that ',function(){ // has sense?
       var elem = null;
       beforeEach(function(){
         elem = dom.id('btn');
         dom.addPreventDefault(elem);
       });
-      it('elem is default prevented',function(){
+      it('preventDefault an element',function(done){
         var event = document.createEvent('HTMLEvents');
         event.initEvent('click', true, true);
         event.preventDefault = jasmine.createSpy();
         elem.dispatchEvent(event);
-        expect(event.preventDefault).toHaveBeenCalled();
+        setTimeout(function(){
+          expect(event.preventDefault).toHaveBeenCalled();
+          done();
+        },200);
       });
-      it('elem is not prevented anymore',function(){
+      it('and remove prevention',function(){
         dom.removePreventDefault(elem);
         var event = document.createEvent('HTMLEvents');
         event.initEvent('click', true, true);
@@ -66,51 +69,42 @@
     describe('createElement()',function(){
       var elem = null;
       var tag = 'div';
-      it('tag is defined',function(){
+      var testClass = 'test-class';
+      var id = 'test-id';
+
+      it('define the tag',function(){
         elem = dom.createElement(tag);
         expect(elem.tagName).toBe(tag.toUpperCase());
       });
-      describe('with class name',function(){
-        var testClass = 'test-class';
+      it('add class to html tag if specified',function(){
         elem = dom.createElement(tag, null, testClass);
-        it('element has class',function(){
-          expect(elem.className).toBe(testClass);
-        });
+        expect(elem.className).toBe(testClass);
       });
-      describe('with id',function(){
-        var id = 'test-id';
-        it('element has id',function(){
-          elem = dom.createElement(tag, id);
-          expect(elem.id).toBe(id);
-        });
+      it('add id to html tag if specified',function(){
+        elem = dom.createElement(tag, id);
+        expect(elem.id).toBe(id);
       });
-
-      describe('with both',function(){
-        var id = 'test-id';
-        var testClass = 'test-class';
-        it('element has id and class',function(){
-          elem = dom.createElement(tag, id, testClass);
-          expect(elem.className).toBe(testClass);
-          expect(elem.id).toBe(id);
-        });
-      });
-
-      describe('addEventListener', function(){
-        it('event is triggered', function(done){
-          var elem = dom.id('btn');
-
-          dom.addEventListener(elem, 'click', function(evt){
-            expect(evt.target).toBe(elem);
-            done();
-          });
-          // move event creator on helper
-          var event = document.createEvent('HTMLEvents');
-          event.initEvent('click', true, true);
-          elem.dispatchEvent(event);
-          // $(elem).click();
-        });
+      it('add class and id to html tag if both are specified',function(){
+        elem = dom.createElement(tag, id, testClass);
+        expect(elem.className).toBe(testClass);
+        expect(elem.id).toBe(id);
       });
     });
 
+    describe('addEventListener', function(){
+      it('event is triggered', function(done){
+        var elem = dom.id('btn');
+
+        dom.addEventListener(elem, 'click', function(evt){
+          expect(evt.target).toBe(elem);
+          done();
+        });
+        // move event creator on helper
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('click', true, true);
+        elem.dispatchEvent(event);
+        // $(elem).click();
+      });
+    });
   });
 })(window._chess.lib.dom);

@@ -63,13 +63,17 @@
         expect(ui.init({})).toBe(null);
       });
 
-      it('defines and disable all the buttons', function(){ // ? disableAllBtns will be called before loadFixtures, right?
+      it('enables connect btn', function(){ // ? disableAllBtns will be called before loadFixtures, right?
+        spyOn(dom,'addPreventDefault');
+        ui.init(user, opts);
+        expect(ui.btns.connect).toHaveClass('enabled');
+      });
+
+      it('disables close btn', function(){ // ? disableAllBtns will be called before loadFixtures, right?
         spyOn(dom,'addPreventDefault');
         ui.init(user, opts);
         for (var btn in ui.btns){
-          expect(ui.btns[btn]).toHaveClass('disabled');
-          expect(dom.addPreventDefault).toHaveBeenCalled();
-          expect(ui.btns[btn]).toBeDefined();
+          expect(ui.btns.close).toHaveClass('disabled');
         }
       });
       describe('binds the buttons', function(){
@@ -89,17 +93,13 @@
           beforeEach(function(){
             loadFixtures('ui/elements.html');
             ui.init(user, opts);
+            dom.addEventListener(btns.close, 'click', btns.close.fn);
             btns.close.dispatchEvent(event);
           });
           it('adds a spinner and calls close mainChannel connection',function(){
             expect(btns.close.getAttribute('class')).toContain('spinner');
             expect(ui.mainChannel.closeConnection).toHaveBeenCalled();
           });
-        });
-        it('if triggered adds a spinner and calls close mainChannel connection',function(){
-          expect(btns.close.getAttribute('class')).toContain('spinner');
-          expect($(allClientsContainer).length).toBe(0);
-          expect(ui.mainChannel.closeConnection).toHaveBeenCalled();
         });
       });
 
@@ -126,15 +126,19 @@
 
       beforeEach(function(){
         loadFixtures('ui/elements.html');
-        ui.init(user, opts);
-        ui.onOpen();
       });
 
       it('write the welcome message and add user info in the page',function(){
+        ui.init(user, opts);
+        ui.onOpen();
         expect($(messageContainer).text()).toBe(welcomeMessage);
       });
 
       it('disable connect and enable close',function(){
+        ui.init(user, opts);
+        spyOn(dom,'removeEventListener');
+        spyOn(dom,'addEventListener');
+        ui.onOpen();
         expect(ui.btns.connect.getAttribute('class')).toContain('disabled');
         expect(ui.btns.close.getAttribute('class')).toContain('enabled');
         // this will be moved on another file in /socket => chessChannel!
@@ -144,30 +148,30 @@
 
     });
 
-    describe('has a method onClose() that',function(){
-      beforeEach(function(){
-        loadFixtures('ui/elements.html');
-        ui.init(user, opts);
-      });
-
-      it('write the goodbye message and remove user info on all clients div',function(){
-        var el = $('#test-id');
-        $(allClientsContainer).append('<div id="' + userId + '"></div>');
-        ui.onClose();
-        expect($(messageContainer).text()).toBe(goodbyeMessage);
-        expect($('#' + userId).length).toBe(0);
-      });
-
-      it('enable connect and disable close buttons',function(){
-        ui.onClose();
-        expect(ui.btns.connect.getAttribute('class')).toContain('enabled');
-        expect(ui.btns.close.getAttribute('class')).toContain('disabled');
-        // this will be moved on another file in /socket => chessChannel!
-        // expect(ui.btns.request_chat.getAttribute('class')).toContain('disabled');
-        // expect(ui.btns.request_match.getAttribute('class')).toContain('disabled');
-      });
-
-    });
+    // describe('has a method onClose() that',function(){
+    //   beforeEach(function(){
+    //     loadFixtures('ui/elements.html');
+    //     ui.init(user, opts);
+    //   });
+    //
+    //   it('write the goodbye message and remove user info on all clients div',function(){
+    //     var el = $('#test-id');
+    //     $(allClientsContainer).append('<div id="' + userId + '"></div>');
+    //     ui.onClose();
+    //     expect($(messageContainer).text()).toBe(goodbyeMessage);
+    //     expect($('#' + userId).length).toBe(0);
+    //   });
+    //
+    //   it('enable connect and disable close buttons',function(){
+    //     ui.onClose();
+    //     expect(ui.btns.connect.getAttribute('class')).toContain('enabled');
+    //     expect(ui.btns.close.getAttribute('class')).toContain('disabled');
+    //     // this will be moved on another file in /socket => chessChannel!
+    //     // expect(ui.btns.request_chat.getAttribute('class')).toContain('disabled');
+    //     // expect(ui.btns.request_match.getAttribute('class')).toContain('disabled');
+    //   });
+    //
+    // });
 
     describe('has a method addInfoNewClient() that',function(){
       beforeEach(function(){
