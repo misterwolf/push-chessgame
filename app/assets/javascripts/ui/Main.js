@@ -74,27 +74,16 @@
   ui.onOpen = function(){
     removeSpinner(ui.btns.connect);
     fillGeneralMessage(MESSAGE_FOR_WELCOME);
-    // addInfoUser(currentUserId);
     enableBtns();
     disableBtn(ui.btns.connect,bindConnect);
   };
-
-  // ui.onClose = function(){
-  //   fillGeneralMessage(MESSAGE_FOR_GOODBYE);
-  //   ui.removeUser(currentUserId);
-  //   disableBtns();
-  //   enableBtn(ui.btns.connect);
-  // };
-
   ui.addInfoNewClients = function(users){
     users = users || {};
     for (var user in users){
       ui.addInfoNewClient(users[user]);
     }
   };
-
   ui.addInfoNewClient = function(user){
-    // TO DO: try catch!
     user = user || {};
     addInfoUser(user);
   };
@@ -103,6 +92,17 @@
     dom.remove( dom.id(userId) );
   };
 
+  // private methods
+  var addInfoUser = function(user){
+    var elem = dom.createElement('div', user.id);
+    elem.innerHTML = '<p>' + user.name + '</p>';
+    var target = dom.id(DIV_ID_CONTAINER_ALL_CLIENTS);
+    dom.insertElement(elem,target);
+  };
+
+  var fillGeneralMessage = function(msg){
+    dom.id(DIV_ID_GENERAL_MESSAGE_USER).innerHTML = msg;
+  };
   function emptyAllClients(){
     dom.id(DIV_ID_CONTAINER_ALL_CLIENTS).innerHTML = '';
   }
@@ -112,7 +112,6 @@
     btn.classList.add('disabled');
     dom.removeEventListener(btn, 'click', btn.fn, true);
   }
-
   function enableBtn(btn){
     btn.classList.add('enabled');
     btn.classList.remove('disabled');
@@ -122,7 +121,6 @@
   function addSpinner(btn){
     btn.classList.add('spinner');
   }
-
   function removeSpinner(btn){
     btn.classList.remove('spinner');
   }
@@ -132,7 +130,6 @@
       disableBtn(ui.btns[btn]);
     }
   }
-
   function enableBtns(){
     for (var btn in ui.btns){
       enableBtn(ui.btns[btn]);
@@ -159,17 +156,5 @@
   // function bindRequestMatch(){
   //   ui.mainChannel.requestMatch();
   // }
-
-  // callbacks ----
-  var fillGeneralMessage = function(msg){
-    dom.id(DIV_ID_GENERAL_MESSAGE_USER).innerHTML = msg;
-  };
-
-  var addInfoUser = function(user){
-    var elem = dom.createElement('div', user.id);
-    elem.innerHTML = '<p>' + user.name + '</p>';
-    var target = dom.id(DIV_ID_CONTAINER_ALL_CLIENTS);
-    dom.insertElement(elem,target);
-  };
 
 })(window._chess.ui.main = {}, window._chess.socket.mainChannel, window._chess.lib.dom);
