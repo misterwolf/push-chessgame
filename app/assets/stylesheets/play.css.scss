@@ -1,3 +1,54 @@
 // Place all the styles related to the play controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+#general-message-user {
+    background-color: #12aaaa;
+    border-color: #d6ffd2;
+    border-style: dotted;
+    border-width: 1px 0 1px 1px;
+    color: #fffaaa;
+    font-size: 16px;
+    text-align: center;
+}
+#all-clients {
+    background: #eee none repeat scroll 0 0;
+    min-height: 30px;
+    padding: 4px 0 9px;
+    text-align: center;
+}
+#game {
+    width: 600px;
+    margin-left: 200px;
+    height: 600px;
+    background-color: #eee;
+}
+#all-clients div {
+    background-color: #ddd;
+    border-color: red;
+    border-style: dotted;
+    border-width: 2px;
+    font-size: 16px;
+    margin: 4px;
+    padding: 4px;
+    text-align: center;
+}
+
+.buttons {
+    background-color: #0bbbbb;
+    text-align: center;
+}
+.buttons .btn {
+    background-color: #12aaaa;
+    border-color: #d6ffd2;
+    border-style: ridge;
+    border-width: 2px 0 0 2px;
+    margin: 4px;
+}
+// .btn.state-on {
+//     border-color: #11ffd2;
+//     border-width: 0 2px 2px 0;
+// }
+.btn.disabled {
+    border: medium none;
+}

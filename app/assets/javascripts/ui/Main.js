@@ -61,8 +61,21 @@
     disableBtns();
     enableBtn(ui.btns.connect);
 
-    // dom.addEventListener(ui.btns.connect, 'click', bindConnect);
-    // dom.addEventListener(ui.btns.close,   'click', bindClose);
+    // dom.addEventListener(ui.btns.connect, 'click', function(){
+    //   // setTimeout(function(){
+    //   //   setTimeout(function(){
+    //   //     ui.btns.connect.classList.remove('state-on');
+    //   //   }, 30);
+    //   //   ui.btns.connect.classList.add('state-on');
+    //   // }, 30);
+    //   ui.btns.connect.fn();
+    // });
+    // dom.addEventListener(ui.btns.close, 'click', function(){
+    //   ui.btns.close.fn();
+    // }, true);
+
+    dom.addEventListener(ui.btns.connect, 'click', bindConnect);
+    dom.addEventListener(ui.btns.close,   'click', bindClose);
     // move them in another channel file
     // dom.addEventListener(ui.btns.request_chat, 'click', bindRequestChat);
     // dom.addEventListener(ui.btns.request_match, 'click', bindRequestMatch);
@@ -75,7 +88,7 @@
     removeSpinner(ui.btns.connect);
     fillGeneralMessage(MESSAGE_FOR_WELCOME);
     enableBtns();
-    disableBtn(ui.btns.connect,bindConnect);
+    disableBtn(ui.btns.connect);
   };
   ui.addInfoNewClients = function(users){
     users = users || {};
@@ -95,7 +108,7 @@
   // private methods
   var addInfoUser = function(user){
     var elem = dom.createElement('div', user.id);
-    elem.innerHTML = '<p>' + user.name + '</p>';
+    elem.innerHTML = user.name;
     var target = dom.id(DIV_ID_CONTAINER_ALL_CLIENTS);
     dom.insertElement(elem,target);
   };
@@ -109,13 +122,12 @@
 
   function disableBtn(btn){
     btn.classList.remove('enabled');
+    btn.classList.remove('state-on');
     btn.classList.add('disabled');
-    dom.removeEventListener(btn, 'click', btn.fn, true);
   }
   function enableBtn(btn){
     btn.classList.add('enabled');
     btn.classList.remove('disabled');
-    dom.addEventListener(btn, 'click', btn.fn);
   }
 
   function addSpinner(btn){

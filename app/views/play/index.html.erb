@@ -1,27 +1,26 @@
-<!--
+<!-- -->
 <div class="row">
- <div class="col-sm-10">
-   <%#= render "chess_game/game_table" %>
- </div>
- <div class="col-sm-2">
-   <%#= render "commons/users_available" %>
- </div>
+    <div class="col-sm-10">
+        <div id="game"></div>
+    </div>
+    <div class="col-sm-2">
+      <div id="general-message-user">
+        click connect button
+      </div>
+      <div id="all-clients">
+      </div>
+      <div class="buttons" class="btn">
+        <div id="connect-btn" class="btn">
+            connect
+        </div>
+        <div id="close-btn" class="btn">
+            close
+        </div>
+      </div>
+      <div id="on-receive-message"></div>
+    </div>
+
 </div>
--->
-<div id="general-message-user"></div>
-
-<div id="on-receive-message"></div>
-
-<div id="all-clients" style="font-size:40px;"></div>
-
-<a id="connect-btn">
-  connect
-</a>
-
-<a id="close-btn">
-  close
-</a>
-
 <script>
-  _chess.ui.main.init({id:<%= current_user.id %>, name: '<%= current_user.name %>'});
+    _chess.ui.main.init({id: <%= current_user.id %>, name: '<%= current_user.name %>'});
 </script>

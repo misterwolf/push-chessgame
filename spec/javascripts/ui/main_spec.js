@@ -126,18 +126,14 @@
 
       beforeEach(function(){
         loadFixtures('ui/elements.html');
+        ui.init(user, opts);
       });
 
       it('write the welcome message and add user info in the page',function(){
-        ui.init(user, opts);
         ui.onOpen();
         expect($(messageContainer).text()).toBe(welcomeMessage);
       });
-
       it('disable connect and enable close',function(){
-        ui.init(user, opts);
-        spyOn(dom,'removeEventListener');
-        spyOn(dom,'addEventListener');
         ui.onOpen();
         expect(ui.btns.connect.getAttribute('class')).toContain('disabled');
         expect(ui.btns.close.getAttribute('class')).toContain('enabled');

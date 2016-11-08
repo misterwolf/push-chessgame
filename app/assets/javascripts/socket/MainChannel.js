@@ -94,7 +94,7 @@
             mainChannel.getAllClients(data,mainChannel.callbacks.get_all_clients);
           }
         }
-      );} , 200); // why? there is come callback anywhere?
+      );} , 200); // why? there is come callback anywhere? BECAUE THIS IS NOT GOOD!!
     mainChannel.connection.sendOnChannel('new_client_connected',
     {
       event_name: 'new_client_info', // no good: generic
