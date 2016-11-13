@@ -65,9 +65,9 @@
       xit('shouldn\'t reinitialize dispatcher if already present',function(){
         expect(connection.dispatcher).toBe(fakeDispatcher);
       });
-      it('has on_open',function(){
-        expect(connection.dispatcher.on_open).toBe(opts.callbacks.on_open);
-      });
+      // it('has on_open',function(){
+      //   expect(connection.dispatcher.on_open).toBe(opts.callbacks.on_open);
+      // });
       it('run if callbacks are missing',function(){
         opts.callbacks = null;
         expect(connection.init(opts)).toBe(connection);
@@ -100,11 +100,12 @@
     });
 
     describe('sendOnChannel()', function(){
-      it('is called with options',function(done){
+      it('is called with options when state is connected',function(done){
         var optsForSend = {event_name:'test-event', message: 'a message'};
         var fakeSendMsg = jasmine.createSpy();
         connection.channels[channel_example] = {trigger: fakeSendMsg};
         connection.sendOnChannel(channel_example,optsForSend);
+        connection.dispatcher = {state: 'connected'};
         setTimeout(function(){
           expect(connection.channels[channel_example].trigger).toHaveBeenCalledWith('test-event','a message');
           done();

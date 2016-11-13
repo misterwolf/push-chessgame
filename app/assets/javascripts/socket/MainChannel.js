@@ -96,9 +96,9 @@
         }
       );} , 200); // why? there is come callback anywhere? BECAUE THIS IS NOT GOOD!!
     mainChannel.connection.sendOnChannel('new_client_connected',
-    {
-      event_name: 'new_client_info', // no good: generic
-      message:{ user: mainChannel.user }}
+      {
+        event_name: 'new_client_info', // no good: generic
+        message:{ user: mainChannel.user }}
     );
   };
 

@@ -58,11 +58,23 @@
 
   connection.sendOnChannel = function(channel, params){
     params = params || {};
-    setTimeout( // why? there is come callback anywhere?
-      function(){
+    // setTimeout( function() { // why? there is come callback anywhere?
+    waitForState('connected', function(){
         connection.channels[channel].trigger(params.event_name, params.message);
-      },
-    150);
+      }
+    );
+
+  };
+
+  var waitForState = function( state, cb){
+    var interval = setInterval(function(){
+      if (connection.dispatcher.state === state){
+        if (cb) {
+          cb();
+        }
+        clearInterval(interval);
+      }
+    }, 100);
   };
 
   connection.disconnect = function(data){
