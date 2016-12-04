@@ -54,6 +54,26 @@
     beforeEach(function(){
       stub();
     });
+
+    // INTRODUCE PROMISE IN OPEN, DISCONNECT
+    // describe('has the method registerPromise that', function(){
+    //   it('call specified promise with cb', function(done){
+    //     ui.cb = function(data){
+    //       expect(data).toBe(dataTest);
+    //       done();
+    //     };
+    //     spyOn(ui, 'cb').and.callThrough();
+    //     var fakePromise = new Promise(function(resolve, reject){
+    //       setTimeout(function(){
+    //         resolve(dataTest);
+    //       }, 100);
+    //     });
+    //
+    //     ui.registerPromise(fakePromise, ui.cb, function(){});
+    //
+    //   });
+    // });
+
     describe('start', function(){
       beforeEach(function(){
         connection.init(opts);

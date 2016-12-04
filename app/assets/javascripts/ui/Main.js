@@ -3,11 +3,12 @@
 //= require lib/namespace
 //= require lib/ajax
 //= require lib/json
+//= require lib/eventmanager
 //= require lib/dom
 //= require socket/namespace
 //= require ui/namespace
 
-(function(ui, mainChannel, dom){
+(function(ui, mainChannel, lib){
   'use strict';
 
   var DIV_ID_CONNECT = 'connect-btn';
@@ -22,9 +23,10 @@
 
   var currentUserId = null;
 
-  ui.mainChannel = mainChannel;
-  ui.dom = dom;
+  var dom = lib.dom;
+  var evtManager = lib.evtManager;
 
+  ui.mainChannel = mainChannel;
   ui.btns = {};
 
   ui.init = function(user, opts){
@@ -36,64 +38,54 @@
       return null;
     }
 
-    opts.callbacks = {
-      get_all_clients: ui.addInfoNewClients,
-      new_client_connected: ui.addInfoNewClient,
-      client_disconnected: ui.removeUser,
-      on_open: ui.onOpen,
-      // connection_closed: ui.onClose
-    };
-
     ui.btns.connect = dom.id(DIV_ID_CONNECT);
     ui.btns.close = dom.id(DIV_ID_CLOSE);
-    // move them in another channel file
-    // ui.btns.request_chat = dom.id(DIV_ID_REQUEST_MATCH);
-    // ui.btns.request_match = dom.id(DIV_ID_REQUEST_CHAT);
-
-    // TO DO: (note: **** )
-    // write a great module that remove event listener,
-    // keeps it and reattach again when element is active again
-    // if (evt.target.className.match(/enabled/)){
-
-    ui.btns.connect.fn = bindConnect;
-    ui.btns.close.fn = bindClose;
 
     disableBtns();
     enableBtn(ui.btns.connect);
 
-    // dom.addEventListener(ui.btns.connect, 'click', function(){
-    //   // setTimeout(function(){
-    //   //   setTimeout(function(){
-    //   //     ui.btns.connect.classList.remove('state-on');
-    //   //   }, 30);
-    //   //   ui.btns.connect.classList.add('state-on');
-    //   // }, 30);
-    //   ui.btns.connect.fn();
-    // });
-    // dom.addEventListener(ui.btns.close, 'click', function(){
-    //   ui.btns.close.fn();
-    // }, true);
-
     dom.addEventListener(ui.btns.connect, 'click', bindConnect);
-    dom.addEventListener(ui.btns.close,   'click', bindClose);
+    dom.addEventListener(ui.btns.close,   'click', setCloseState);
+
     // move them in another channel file
     // dom.addEventListener(ui.btns.request_chat, 'click', bindRequestChat);
     // dom.addEventListener(ui.btns.request_match, 'click', bindRequestMatch);
+    // ui.btns.request_chat = dom.id(DIV_ID_REQUEST_MATCH);
+    // ui.btns.request_match = dom.id(DIV_ID_REQUEST_CHAT);
 
+    // establish connection with emit manager
+    evtManager.set(ui);
+    ui.on('all_clients_received',ui.addInfoNewClients);
+    ui.on('new_client_connected',ui.addInfoNewClient);
+    ui.on('client_disconnected', ui.removeUser);
+    ui.on('on_open',ui.setInitialState);
   };
 
-  ui.onOpen = function(){
+  // ui.registerPromise = function(promise, success, error){
+  //   promise.then(
+  //     function fullFilled(data){
+  //       success(data);
+  //     },
+  //     function rejected(data){
+  //       error();
+  //     }
+  //   );
+  // };
+
+  ui.setInitialState = function(){
     removeSpinner(ui.btns.connect);
     fillGeneralMessage(MESSAGE_FOR_WELCOME);
     enableBtns();
     disableBtn(ui.btns.connect);
   };
+
   ui.addInfoNewClients = function(users){
     users = users || {};
     for (var user in users){
       ui.addInfoNewClient(users[user]);
     }
   };
+
   ui.addInfoNewClient = function(user){
     user = user || {};
     addInfoUser(user);
@@ -151,7 +143,7 @@
     ui.mainChannel.start();
   }
 
-  function bindClose(evt){
+  function setCloseState(evt){
     fillGeneralMessage(MESSAGE_FOR_GOODBYE);
     addSpinner(ui.btns.close);
     emptyAllClients();
@@ -167,4 +159,4 @@
   //   ui.mainChannel.requestMatch();
   // }
 
-})(window._chess.ui.main = {}, window._chess.socket.mainChannel, window._chess.lib.dom);
+})(window._chess.ui.main = {}, window._chess.socket.mainChannel, window._chess.lib);

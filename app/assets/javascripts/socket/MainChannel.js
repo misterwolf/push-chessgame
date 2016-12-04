@@ -60,13 +60,10 @@
   };
 
   mainChannel.getAllClients = function(data,cb){
-    // TRY TO CALL CB EXTERNALLY AS THE BOOK SUGGESTS! :)
-    
     cb(data.users);
   };
 
   mainChannel.removeClientInfo = function(data,cb){
-    // TRY TO CALL CB EXTERNALLY AS THE BOOK SUGGESTS! :)
     cb(data.user);
   };
 
@@ -116,7 +113,6 @@
         cb();
       }
     },200);
-
 
   };
 
