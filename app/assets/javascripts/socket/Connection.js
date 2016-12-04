@@ -14,7 +14,7 @@
   connection.channels = [];
   connection.callbacks = null;
 
-  connection.init = function(params, cb){
+  connection.init = function(params, cb){ 
     params = params || {}; // we can put into also all the channel provided by server.
     channels_specs = params.channels_specs;
     if (params.url) {

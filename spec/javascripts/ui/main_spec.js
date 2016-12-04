@@ -26,7 +26,6 @@
   };
 
   var stubMainChannel = {
-    ciaoc: jasmine.createSpy(),
     init: jasmine.createSpy(),
     start: jasmine.createSpy(),
     closeConnection: jasmine.createSpy(),

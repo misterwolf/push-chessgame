@@ -22,5 +22,7 @@
 
 </div>
 <script>
-    _chess.ui.main.init({id: <%= current_user.id %>, name: '<%= current_user.name %>'});
+var user = {id: <%= current_user.id %>, name: '<%= current_user.name %>'};
+    _chess.ui.socket.mainChannel.init(user, opts);
+    _chess.ui.main.init(user);
 </script>

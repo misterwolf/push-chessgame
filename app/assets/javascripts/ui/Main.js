@@ -80,8 +80,6 @@
     // dom.addEventListener(ui.btns.request_chat, 'click', bindRequestChat);
     // dom.addEventListener(ui.btns.request_match, 'click', bindRequestMatch);
 
-    ui.mainChannel.init(user, currentUserId, opts);
-
   };
 
   ui.onOpen = function(){
