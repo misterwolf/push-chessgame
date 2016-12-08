@@ -1,59 +1,56 @@
-(function(connection, dom){
+//= require lib/eventmanager
+//= require lib/dom
+
+(function(connection, lib){
   'use strict';
 
-  // TO DO:
-  // 1 IN FUTURE DELETE THE WELCOME AND GOOD BYE MESSAGES
-  // 2 MOVE ALL THE HTML REFERENCES FROM THIS FILE IN ANOTHER SEPARATE ONE.
-  // 2.1 LIKE: CONSTANTS AND DOM.ID|CLASSES!
-  // 2.2 IT COULD BE A GOOD IDEA AND THIS IMPLIES TO STUB OBJECTS IN TEST SUITE!
-  // 2.3 naturally, it's better that elements id must be variables.
-  var channels_specs = null;
+  var dom = lib.dom;
+  var evtManager = lib.evtManager;
+
   connection.url = 'localhost:3000/websocket';
   connection.dispatcher = null;
   connection.opened = false;
   connection.channels = [];
   connection.callbacks = null;
 
-  connection.init = function(params, cb){ 
+  evtManager.set(connection);
+
+  connection.init = function(params){
     params = params || {}; // we can put into also all the channel provided by server.
-    channels_specs = params.channels_specs;
     if (params.url) {
       connection.url = params.url;
     }
-    if (!channels_specs) { return; }
-    connection.callbacks = params.callbacks;
-    return this;
   };
 
   connection.start = function(cb){
     if (!connection.dispatcher){
       connection.dispatcher = new WebSocketRails(connection.url);
-      subscribeAndBindChannels(channels_specs);
-      addMainCallbacks(connection.callbacks.on_open,connection.callbacks.connection_closed,null);
+      connection.addCallback('on_open',onOpen);
+      connection.addCallback('connection_closed',connectionClosed);
+      connection.addCallback('connection_error',connectionError);
     }
   };
 
-  var subscribeAndBindChannels = function(channels_specs){
-    for (var channel_specs in channels_specs){
-      channel_specs = channels_specs[channel_specs];
-      var channel_name = channel_specs.channelName; // remove this
-      connection.channels[channel_name] = connection.dispatcher.subscribe(channel_name);
-      var events = channel_specs.events;
-
-      for (var event in events){
-        connection.channels[channel_name].bind(
-          events[event].event_name,
-          events[event].bindFunction
-        ); // how to test?
-      }
-    }
+  connection.addCallback = function(name,cb){
+    connection.dispatcher[name] = cb;
   };
 
-  var addMainCallbacks = function(on_open,connection_closed,connection_error){
-    var dispatcher = connection.dispatcher;
-    connection.dispatcher.on_open = on_open;
-    connection.dispatcher.connection_closed = connection_closed ;
-    connection.dispatcher.connection_error = connection_error ;
+  function onOpen(){
+    connection.trigger('on_open');
+  }
+  function connectionClosed(){
+    connection.trigger('connection_closed');
+  }
+  function connectionError(){
+    connection.trigger('connection_error');
+  }
+
+  connection.subscribeChannel = function(channelName,eventName,onTrigger){
+    // waitForState('connected', function(){
+      connection.channels[channelName] = connection.dispatcher.subscribe(channelName);
+      connection.channels[channelName].bind(eventName,onTrigger);
+    // });
+
   };
 
   connection.sendOnChannel = function(channel, params){
@@ -90,4 +87,4 @@
     // TO DO:
   };
 
-})(window._chess.socket.connection = {}, window._chess.lib.dom);
+})(window._chess.socket.connection = {}, window._chess.lib);

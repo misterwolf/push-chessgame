@@ -7,7 +7,9 @@
   var connection = null;
   var user = {id:'test-id',name:'test-name'};
   var anotherUser = {id:'test-another-id',name:'test-name'};
-  var channelTest = {name: 'test-channel', eventName: 'test-event', cb: jasmine.createSpy()};
+  var channel_name = 'channel_name',
+    channel_event = 'event_example',
+    onTrigger = jasmine.createSpy();
 
   describe('the MainChannel module',function(){
 
@@ -15,39 +17,26 @@
       var stubConnection = {
         dispatcher: function(){},
         init: function() {return this;},
+        subscribeChannel: jasmine.createSpy(),
         start: jasmine.createSpy(),
         subscribe: jasmine.createSpy(),
         disconnect: jasmine.createSpy(),
         sendOnChannel: jasmine.createSpy()
       };
-
-      // opts = {
-      //   callbacks: {
-      //     new_client_connected: jasmine.createSpy(),
-      //     get_all_clients: jasmine.createSpy(),
-      //     client_disconnected: jasmine.createSpy()
-      //   }
-      // };
       mainChannel.connection = stubConnection;
-
     });
 
     describe('has a method init that',function(){
-      it('initialize a connection object',function(){
-        mainChannel.init(user, opts);
-        expect(mainChannel.connection).toBeDefined();
-      });
       it('set the logged user',function(){
         mainChannel.init(user, opts);
         expect(mainChannel.user).toBe(user);
       });
     });
 
-    // NEW VERSION
     describe('has the method subscribeChannel that', function(){
       it('subscribes a channel',function(){
-        mainChannel.subscribeChannel(channelTest);
-        expect(mainChannel.connection.subscribe).toHaveBeenCalled();
+        mainChannel.subscribeChannel(channel_name, channel_event, onTrigger);
+        expect(mainChannel.connection.subscribeChannel).toHaveBeenCalledWith(channel_name, channel_event, onTrigger);
       });
     });
 
@@ -75,16 +64,12 @@
     });
 
     describe('start()',function(){
-
-      it('should call connection.start',function(){
+      beforeEach(function(){
         mainChannel.init(user, opts);
         mainChannel.start();
-        expect(mainChannel.connection.start).toHaveBeenCalled();
       });
 
       it('should notify that user is connected',function(){
-        mainChannel.init(user, opts);
-        mainChannel.start();
         expect(mainChannel.connection.sendOnChannel).toHaveBeenCalledWith(
           'new_client_connected',
           {
@@ -98,8 +83,6 @@
 
       it('should send request for get all clients',function(done){
         jasmine.Ajax.install();
-        mainChannel.init(user, opts);
-        mainChannel.start();
         setTimeout(function(){
           var request = jasmine.Ajax.requests.mostRecent();
           expect(request.url).toBe('play/get_all_clients');
@@ -108,24 +91,28 @@
         },201);
       });
 
+      it('subscribe internal channels',function(){
+        expect(mainChannel.connection.subscribeChannel.calls.count()).toBe(2);
+      });
+
     });
 
     describe('has the method newClientConnected that ',function(){ // next step, introduce promise
-      it('should call callback if user isn\'t current user',function(){
+      it('should call evtManager.trigger if user isn\'t current user',function(){
         var data = {user: anotherUser};
-        var cb = jasmine.createSpy();
+        spyOn(mainChannel,'trigger');
         mainChannel.init(user, opts);
-        mainChannel.newClientConnected(data,cb);
-        expect(cb).toHaveBeenCalledWith(data.user);
+        mainChannel.newClientConnected(data);
+        expect(mainChannel.trigger).toHaveBeenCalled();
       });
     });
 
     describe('has the method removeClientInfo that ',function(){ // next step, introduce promise
-      it('should call callback',function(){
+      it('should call evtManager.trigger',function(){
         var data = {user: user};
-        var cb = jasmine.createSpy();
-        mainChannel.removeClientInfo(data,cb);
-        expect(cb).toHaveBeenCalledWith(data.user);
+        spyOn(mainChannel,'trigger');
+        mainChannel.removeClientInfo(data);
+        expect(mainChannel.trigger).toHaveBeenCalled();
       });
     });
   });

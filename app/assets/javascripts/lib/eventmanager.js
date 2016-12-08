@@ -2,23 +2,25 @@
 
   evtManager.set = function(object) {
 
-    var events = {};
+    evtManager.events = evtManager.events || {};
     object.on = function(evtName, callback) {
-      if (!events[evtName])
+      if (!evtManager.events[evtName])
       {
-        events[evtName] = [];
+        evtManager.events[evtName] = [];
       }
-      events[evtName].push(callback);
+      evtManager.events[evtName].push(callback);
     };
 
     object.trigger = function(evtName, evtObj) {
-      events[evtName].forEach(function(callback) {
-        setTimeout(function(){callback(evtObj);},1);
-      });
+      if (evtManager.events[evtName]){
+        evtManager.events[evtName].forEach(function(callback) {
+          setTimeout(function(){callback(evtObj);},1);
+        });
+      }
     };
 
     object.remove = function(evtName) {
-      delete events[evtName];
+      delete evtManager.events[evtName];
     };
     return object;
   };

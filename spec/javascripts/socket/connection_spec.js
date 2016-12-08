@@ -9,8 +9,10 @@
 
 (function(connection){
   'use strict';
+  var channel_name = 'channel_name',
+    channel_event = 'event_example',
+    onTrigger = jasmine.createSpy();
 
-  var channel_example = 'channel_example';
   var opts = null;
   var url = 'localhost:3000/websocket';
   var fakeDispatcher = {
@@ -24,38 +26,16 @@
 
   var stub = function(){
     opts = {
-      callbacks: {
-        on_open: jasmine.createSpy(),
-        connection_closed: jasmine.createSpy(),
-        connection_error: jasmine.createSpy()
-      },
       url: url,
-      // channel_name,
-      //    event_name:
-      //      name:
-      //      function:
-      channels_specs: {
-        new_client_connected: {
-          channelName: channel_example,
-          events:{
-            new_client_info: {
-              event_name: 'test_event',
-              bindFunction: function(data){
-                mainChannel.newClientConnected(data,callbacks.new_client_connected);
-              }
-            }
-          }
-        }
-      }
     };
   };
 
-  describe('socket.connection', function() {
+  describe('the class socket.connection', function() {
     beforeEach(function(){
       stub();
     });
 
-    // INTRODUCE PROMISE IN OPEN, DISCONNECT
+    // INTRODUCE PROMISE IN OPEN AND DISCONNECT
     // describe('has the method registerPromise that', function(){
     //   it('call specified promise with cb', function(done){
     //     ui.cb = function(data){
@@ -74,7 +54,19 @@
     //   });
     // });
 
-    describe('start', function(){
+    describe('has method init() that',function(){
+      it('sets default url when opts.url is missing',function(){
+        connection.init({});
+        expect(connection.url).toBe(url);
+      });
+      it('sets the passed default url',function(){
+        var test_url = {url: 'test-url'};
+        connection.init(test_url);
+        expect(connection.url).toBe(test_url.url);
+      });
+    });
+
+    describe('has a method start that', function(){
       beforeEach(function(){
         connection.init(opts);
         connection.start();
@@ -82,60 +74,56 @@
       afterEach(function(){
         connection.dispatcher = null;
       });
-      xit('shouldn\'t reinitialize dispatcher if already present',function(){
-        expect(connection.dispatcher).toBe(fakeDispatcher);
+      it('initialize a dispatcher',function(){
+        expect(connection.dispatcher).toBeDefined();
       });
-      // it('has on_open',function(){
-      //   expect(connection.dispatcher.on_open).toBe(opts.callbacks.on_open);
-      // });
-      it('run if callbacks are missing',function(){
-        opts.callbacks = null;
-        expect(connection.init(opts)).toBe(connection);
-      });
-      it('has connection_closed callback',function(){
-        expect(connection.dispatcher.connection_closed).toBe(opts.callbacks.connection_closed);
-      });
-      // it('has connection_error callback',function(){
-      //   expect(connection.dispatcher.connection_error).toBe(opts.callbacks.connection_error);
-      // });
-      describe('passed channel', function(){
-        it('is subscribed', function(){
-          expect(connection.channels[channel_example]).toBeDefined();
-        });
-        xit('event is binded', function(){
-          // TO DO
-          expect(connection.channels[channel_example].event.bind_fuction).isBinded();
-        });
+      it('add callbacks a dispatcher',function(){
+        expect(connection.dispatcher.on_open).toBeDefined();
+        expect(connection.dispatcher.connection_closed).toBeDefined();
+        expect(connection.dispatcher.connection_error).toBeDefined();
       });
     });
 
-    describe('init()',function(){
-      describe('url',function(){
-        it('set default string',function(){
-          opts.url = null;
-          connection.init(opts);
-          expect(connection.url).toBe(url);
-        });
-      });
-    });
-
-    describe('sendOnChannel()', function(){
-      it('is called with options when state is connected',function(done){
+    describe('has method sendOnChannel() that', function(){
+      beforeEach(function(){
         var optsForSend = {event_name:'test-event', message: 'a message'};
         var fakeSendMsg = jasmine.createSpy();
-        connection.channels[channel_example] = {trigger: fakeSendMsg};
-        connection.sendOnChannel(channel_example,optsForSend);
+        connection.channels[channel_name] = {trigger: fakeSendMsg};
+        connection.sendOnChannel(channel_name,optsForSend);
+      });
+      it('is called with options when state is connected',function(done){
         connection.dispatcher = {state: 'connected'};
         setTimeout(function(){
-          expect(connection.channels[channel_example].trigger).toHaveBeenCalledWith('test-event','a message');
+          expect(connection.channels[channel_name].trigger).toHaveBeenCalledWith('test-event','a message');
+          done();
+        }, 200);
+      });
+      it('should\'t called with options when state is not euqal to connected',function(done){
+        connection.dispatcher = {state: 'another_state'};
+        setTimeout(function(){
+          expect(connection.channels[channel_name].trigger).not.toHaveBeenCalled();
           done();
         }, 200);
       });
     });
 
-    xdescribe('bindChannels()', function(){
-      it('is called with options',function(){
+    describe('has method addCallback() that',function(){
+      it('bind callback', function(){
+        var name = 'test', cb = jasmine.createSpy();
+        connection.addCallback(name, cb);
+        expect(connection.dispatcher[name]).toBe(cb);
+      });
+    });
 
+    describe('has method subscribeChannel() that',function(){
+      it('binds specified channel event with passed arguments', function(done){
+        connection.dispatcher = fakeDispatcher;
+        connection.dispatcher.state = 'connected';
+        connection.subscribeChannel(channel_name, channel_event, onTrigger);
+        setTimeout(function(){
+          expect(connection.channels[channel_name].bind).toHaveBeenCalledWith(channel_event, onTrigger);
+          done();
+        }, 200);
       });
     });
 

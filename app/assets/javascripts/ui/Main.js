@@ -8,7 +8,7 @@
 //= require socket/namespace
 //= require ui/namespace
 
-(function(ui, mainChannel, lib){
+(function(ui, mainChannel, connection, lib){
   'use strict';
 
   var DIV_ID_CONNECT = 'connect-btn';
@@ -27,6 +27,8 @@
   var evtManager = lib.evtManager;
 
   ui.mainChannel = mainChannel;
+  ui.connection = connection;
+
   ui.btns = {};
 
   ui.init = function(user, opts){
@@ -53,24 +55,13 @@
     // ui.btns.request_chat = dom.id(DIV_ID_REQUEST_MATCH);
     // ui.btns.request_match = dom.id(DIV_ID_REQUEST_CHAT);
 
-    // establish connection with emit manager
-    evtManager.set(ui);
+    evtManager.set(ui);    // establish connection with emit manager
     ui.on('all_clients_received',ui.addInfoNewClients);
     ui.on('new_client_connected',ui.addInfoNewClient);
     ui.on('client_disconnected', ui.removeUser);
     ui.on('on_open',ui.setInitialState);
-  };
 
-  // ui.registerPromise = function(promise, success, error){
-  //   promise.then(
-  //     function fullFilled(data){
-  //       success(data);
-  //     },
-  //     function rejected(data){
-  //       error();
-  //     }
-  //   );
-  // };
+  };
 
   ui.setInitialState = function(){
     removeSpinner(ui.btns.connect);
@@ -140,6 +131,8 @@
 
   function bindConnect(evt){
     addSpinner(ui.btns.connect);
+    // in this way modules are indipendents:
+    ui.connection.start();
     ui.mainChannel.start();
   }
 
@@ -159,4 +152,4 @@
   //   ui.mainChannel.requestMatch();
   // }
 
-})(window._chess.ui.main = {}, window._chess.socket.mainChannel, window._chess.lib);
+})(window._chess.ui.main = {}, window._chess.socket.mainChannel, window._chess.socket.connection, window._chess.lib);
