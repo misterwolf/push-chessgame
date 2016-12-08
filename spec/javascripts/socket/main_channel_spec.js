@@ -5,9 +5,11 @@
 
   var opts = {};
   var connection = null;
-  var data = {user: 1};
   var user = {id:'test-id',name:'test-name'};
-  var currentUserId = 'my-test-id';
+  var anotherUser = {id:'test-another-id',name:'test-name'};
+  var channel_name = 'channel_name',
+    channel_event = 'event_example',
+    onTrigger = jasmine.createSpy();
 
   describe('the MainChannel module',function(){
 
@@ -15,29 +17,27 @@
       var stubConnection = {
         dispatcher: function(){},
         init: function() {return this;},
+        subscribeChannel: jasmine.createSpy(),
         start: jasmine.createSpy(),
+        subscribe: jasmine.createSpy(),
         disconnect: jasmine.createSpy(),
         sendOnChannel: jasmine.createSpy()
       };
-
-      opts = {
-        callbacks: {
-          new_client_connected: jasmine.createSpy(),
-          get_all_clients: jasmine.createSpy(),
-          client_disconnected: jasmine.createSpy()
-        }
-      };
       mainChannel.connection = stubConnection;
-
     });
 
     describe('has a method init that',function(){
-
-      it('initialize a connection object',function(){
-        mainChannel.init(user, currentUserId, opts);
-        expect(mainChannel.connection).toBeDefined();
+      it('set the logged user',function(){
+        mainChannel.init(user, opts);
+        expect(mainChannel.user).toBe(user);
       });
+    });
 
+    describe('has the method subscribeChannel that', function(){
+      it('subscribes a channel',function(){
+        mainChannel.subscribeChannel(channel_name, channel_event, onTrigger);
+        expect(mainChannel.connection.subscribeChannel).toHaveBeenCalledWith(channel_name, channel_event, onTrigger);
+      });
     });
 
     describe('has a method closeConnection that',function(){
@@ -59,21 +59,17 @@
             );
             expect(cb).toHaveBeenCalled();
             done();
-          },201);
+          },201); // no good
       });
     });
 
     describe('start()',function(){
-
-      it('should call connection.start',function(){
-        mainChannel.init(user, currentUserId, opts);
+      beforeEach(function(){
+        mainChannel.init(user, opts);
         mainChannel.start();
-        expect(mainChannel.connection.start).toHaveBeenCalled();
       });
 
       it('should notify that user is connected',function(){
-        mainChannel.init(user, currentUserId, opts);
-        mainChannel.start();
         expect(mainChannel.connection.sendOnChannel).toHaveBeenCalledWith(
           'new_client_connected',
           {
@@ -87,8 +83,6 @@
 
       it('should send request for get all clients',function(done){
         jasmine.Ajax.install();
-        mainChannel.init(user, currentUserId, opts);
-        mainChannel.start();
         setTimeout(function(){
           var request = jasmine.Ajax.requests.mostRecent();
           expect(request.url).toBe('play/get_all_clients');
@@ -97,61 +91,30 @@
         },201);
       });
 
+      it('subscribe internal channels',function(){
+        expect(mainChannel.connection.subscribeChannel.calls.count()).toBe(2);
+      });
+
     });
-    describe('has channels where ',function(){
-      // these are hard to test:
-      // test if callback is called with data
-      // test is internal callback is called ( cb(data) )
-      var channels_specs = null;
-      beforeEach(function(){
-        mainChannel.init(user, currentUserId, opts);
-        channels_specs = mainChannel.channels_specs;
-      });
 
-      describe('the newClientConnected() has the ',function(){
-        describe('event new_client_info that', function(){
-          it('should be called with options',function(){
-            spyOn(mainChannel, 'newClientConnected');
-            channels_specs.new_client_connected.events.new_client_info.bindFunction(data);
-            expect(mainChannel.newClientConnected).toHaveBeenCalledWith(data,opts.callbacks.new_client_connected);
-          });
-          it('should call callback',function(){
-            channels_specs.new_client_connected.events.new_client_info.bindFunction(data);
-            expect(opts.callbacks.new_client_connected).toHaveBeenCalledWith(data.user);
-          });
-        });
-      });
-
-      // describe('getAllClients()',function(){
-      //   it('should be called with options',function(){
-      //     spyOn(mainChannel, 'getAllClients');
-      //     channels_specs.get_all_clients.events.all_clients_info.bindFunction(data);
-      //     expect(mainChannel.getAllClients).toHaveBeenCalledWith(data,opts.callbacks.get_all_clients);
-      //   });
-      //   it('should call callback',function(){
-      //     channels_specs.get_all_clients.events.all_clients_info.bindFunction(data);
-      //     expect(opts.callbacks.get_all_clients).toHaveBeenCalledWith(data);
-      //   });
-      // });
-
-      describe('removeClientInfo()',function(){
-        it('should be called with options',function(){
-          spyOn(mainChannel, 'removeClientInfo');
-          channels_specs.client_disconnected.events.remove_client_info.bindFunction(data);
-          expect(mainChannel.removeClientInfo).toHaveBeenCalledWith(data,opts.callbacks.client_disconnected);
-        });
-        it('should call callback',function(){
-          channels_specs.client_disconnected.events.remove_client_info.bindFunction(data);
-          expect(opts.callbacks.client_disconnected).toHaveBeenCalledWith(data.user);
-        });
-      });
-
-      xdescribe('requestChat()', function(){          // a request to /socket?private_chat
-        it('should do a request', function(){
-        });
+    describe('has the method newClientConnected that ',function(){ // next step, introduce promise
+      it('should call evtManager.trigger if user isn\'t current user',function(){
+        var data = {user: anotherUser};
+        spyOn(mainChannel,'trigger');
+        mainChannel.init(user, opts);
+        mainChannel.newClientConnected(data);
+        expect(mainChannel.trigger).toHaveBeenCalled();
       });
     });
 
-    // });
+    describe('has the method removeClientInfo that ',function(){ // next step, introduce promise
+      it('should call evtManager.trigger',function(){
+        var data = {user: user};
+        spyOn(mainChannel,'trigger');
+        mainChannel.removeClientInfo(data);
+        expect(mainChannel.trigger).toHaveBeenCalled();
+      });
+    });
   });
+
 })(window._chess.socket.mainChannel);

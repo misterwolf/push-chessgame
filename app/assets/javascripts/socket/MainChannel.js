@@ -1,77 +1,30 @@
+//= require lib/eventmanager
+
 (function(mainChannel, connection, lib){
   'use strict';
-  // var Mainsocket = function(){
+
   var dom = lib.dom;
   var json = lib.json;
   var ajax = lib.ajax;
+  var evtManager = lib.evtManager;
 
   mainChannel.connection = connection;
   mainChannel.user = {};
   mainChannel.callbacks = null;
   mainChannel.currentUserId = null;
-  mainChannel.init = function(user, currentUserId, opts){
-    // opts = opts || {};
-    mainChannel.currentUserId = currentUserId;
-    mainChannel.callbacks = opts.callbacks;
+
+  evtManager.set(mainChannel);
+
+  mainChannel.init = function(user, opts){
+    opts = opts || {};
     mainChannel.user = user;
-
-    mainChannel.channels_specs = {
-      new_client_connected: {
-        channelName: 'new_client_connected',
-        events:{
-          new_client_info: {
-            event_name: 'new_client_info',
-            bindFunction: function(data){
-              mainChannel.newClientConnected(data,mainChannel.callbacks.new_client_connected);
-            }
-          }
-        }
-      },
-      // get_all_clients: {
-      //   channelName: 'get_all_clients',
-      //   events:{
-      //     all_clients_info: {
-      //       event_name: 'all_clients_info',
-      //       bindFunction: function(data){
-      //         mainChannel.getAllClients(data,callbacks.get_all_clients);
-      //       }
-      //     }
-      //   }
-      // },
-      client_disconnected: {
-        channelName: 'client_disconnected',
-        events:{
-          remove_client_info: {
-            event_name: 'remove_client_info',
-            bindFunction: function(data){
-              mainChannel.removeClientInfo(data,mainChannel.callbacks.client_disconnected);
-            }
-          }
-        }
-      }
-    };
-
-    opts.channels_specs = mainChannel.channels_specs;
-
-    this.connection.init(opts,null);
-  };
-
-  mainChannel.newClientConnected = function(data,cb){
-    if (data.user.id != mainChannel.currentUserId){ // for avoiding of insert two time current user id
-      cb(data.user);
-    }
-  };
-
-  mainChannel.getAllClients = function(data,cb){
-    cb(data.users);
-  };
-
-  mainChannel.removeClientInfo = function(data,cb){
-    cb(data.user);
   };
 
   mainChannel.start = function(){
-    this.connection.start();
+
+    mainChannel.connection.subscribeChannel('new_client_connected','new_client_info',   mainChannel.newClientConnected);
+    mainChannel.connection.subscribeChannel('client_disconnected','remove_client_info', mainChannel.removeClientInfo);
+
     setTimeout(
       function(){
         ajax.send(
@@ -91,18 +44,38 @@
           } else {
             data = json.parse(data);
             data.users = json.parse(data.users);
-            mainChannel.getAllClients(data,mainChannel.callbacks.get_all_clients);
+            mainChannel.getAllClients(data);
           }
         }
-      );} , 200); // why? there is come callback anywhere? BECAUE THIS IS NOT GOOD!!
+      );}, 200); // why? there is come callback anywhere? BECAUSE THIS IS NOT GOOD!!
     mainChannel.connection.sendOnChannel('new_client_connected',
       {
         event_name: 'new_client_info', // no good: generic
-        message:{ user: mainChannel.user }}
+        message:{ user: mainChannel.user }
+      }
     );
   };
 
+  mainChannel.subscribeChannel = function(channelName,eventName,onTrigger){
+    this.connection.subscribeChannel(channelName,eventName,onTrigger);
+  };
+
+  mainChannel.newClientConnected = function(data){
+    if (data.user.id != mainChannel.user.id){ // avoid to insert two time current user id
+      mainChannel.trigger('new_client_connected', data.user);
+    }
+  };
+
+  mainChannel.getAllClients = function(data){
+    mainChannel.trigger('all_clients_received',data.users);
+  };
+
+  mainChannel.removeClientInfo = function(data){
+    mainChannel.trigger('client_disconnected',data.user);
+  };
+
   mainChannel.closeConnection = function(cb){
+    // here we can introduce the Promise
     // this.connection = null; try also this
     mainChannel.connection.sendOnChannel('client_disconnected',
     {
@@ -111,11 +84,10 @@
     );
     setTimeout(function(){
       mainChannel.connection.disconnect();
+      if (cb) {
+        cb();
+      }
     },200);
-    if (cb)
-    {
-      cb();
-    }
 
   };
 

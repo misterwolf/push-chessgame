@@ -19,6 +19,7 @@
   var testName = 'test-name';
   var anotherUserId = 'test-another-id';
   var exampleUser = {id:userId,name:testName};
+  var dataTest = {test:'true'};
 
   var stubConnection = {
     init: jasmine.createSpy(),
@@ -26,7 +27,6 @@
   };
 
   var stubMainChannel = {
-    ciaoc: jasmine.createSpy(),
     init: jasmine.createSpy(),
     start: jasmine.createSpy(),
     closeConnection: jasmine.createSpy(),
@@ -76,53 +76,49 @@
           expect(ui.btns.close).toHaveClass('disabled');
         }
       });
-      describe('binds the buttons', function(){
-        var btns = ui.btns;
-        describe('and if button connect is clicked', function(){
-          beforeEach(function(){
-            loadFixtures('ui/elements.html');
-            ui.init(user, opts);
-            btns.connect.dispatchEvent(event);
-          });
-          it('adds a spinner and calls start mainChannel initilization',function(){
-            expect(btns.connect.getAttribute('class')).toContain('spinner');
-            expect(ui.mainChannel.start).toHaveBeenCalled();
-          });
+      describe('bind the button connect that', function(){
+        beforeEach(function(){
+          loadFixtures('ui/elements.html');
+          ui.init(user, opts);
+          btns.connect.dispatchEvent(event);
         });
-        describe('and if button close is clicked', function(){
-          beforeEach(function(){
-            loadFixtures('ui/elements.html');
-            ui.init(user, opts);
-            dom.addEventListener(btns.close, 'click', btns.close.fn);
-            btns.close.dispatchEvent(event);
-          });
-          it('adds a spinner and calls close mainChannel connection',function(){
-            expect(btns.close.getAttribute('class')).toContain('spinner');
-            expect(ui.mainChannel.closeConnection).toHaveBeenCalled();
-          });
+        it('if clicked adds a spinner and calls start mainChannel initilization',function(){
+          expect(btns.connect.getAttribute('class')).toContain('spinner');
+          expect(ui.mainChannel.start).toHaveBeenCalled();
         });
       });
-
-      // move these two in another channel file
-      xdescribe('and if button request chat is clicked', function(){
-        it('add spinner class',function(){
-
+      describe('bind the button close that', function(){
+        beforeEach(function(){
+          loadFixtures('ui/elements.html');
+          ui.init(user, opts);
+          dom.addEventListener(btns.close, 'click', btns.close.fn);
+          btns.close.dispatchEvent(event);
         });
-        it('remove spinner class on complete',function(){
-
-        });
-      });
-      xdescribe('and if button request match is clicked', function(){
-        it('add spinner class',function(){
-
-        });
-        it('remove spinner class on complete',function(){
-
+        it('if clicked adds a spinner and calls close mainChannel connection',function(){
+          expect(btns.close.getAttribute('class')).toContain('spinner');
+          expect(ui.mainChannel.closeConnection).toHaveBeenCalled();
         });
       });
     });
+    // move these two in another channel file
+    // xdescribe('and if button request chat is clicked', function(){
+    //   it('add spinner class',function(){
+    //
+    //   });
+    //   it('remove spinner class on complete',function(){
+    //
+    //   });
+    // });
+    // xdescribe('and if button request match is clicked', function(){
+    //   it('add spinner class',function(){
+    //
+    //   });
+    //   it('remove spinner class on complete',function(){
+    //
+    //   });
+    // });
 
-    describe('has a method onOpen() that',function(){
+    describe('has a method setInitialState() that',function(){
 
       beforeEach(function(){
         loadFixtures('ui/elements.html');
@@ -130,11 +126,11 @@
       });
 
       it('write the welcome message and add user info in the page',function(){
-        ui.onOpen();
+        ui.setInitialState();
         expect($(messageContainer).text()).toBe(welcomeMessage);
       });
       it('disable connect and enable close',function(){
-        ui.onOpen();
+        ui.setInitialState();
         expect(ui.btns.connect.getAttribute('class')).toContain('disabled');
         expect(ui.btns.close.getAttribute('class')).toContain('enabled');
         // this will be moved on another file in /socket => chessChannel!
@@ -143,31 +139,6 @@
       });
 
     });
-
-    // describe('has a method onClose() that',function(){
-    //   beforeEach(function(){
-    //     loadFixtures('ui/elements.html');
-    //     ui.init(user, opts);
-    //   });
-    //
-    //   it('write the goodbye message and remove user info on all clients div',function(){
-    //     var el = $('#test-id');
-    //     $(allClientsContainer).append('<div id="' + userId + '"></div>');
-    //     ui.onClose();
-    //     expect($(messageContainer).text()).toBe(goodbyeMessage);
-    //     expect($('#' + userId).length).toBe(0);
-    //   });
-    //
-    //   it('enable connect and disable close buttons',function(){
-    //     ui.onClose();
-    //     expect(ui.btns.connect.getAttribute('class')).toContain('enabled');
-    //     expect(ui.btns.close.getAttribute('class')).toContain('disabled');
-    //     // this will be moved on another file in /socket => chessChannel!
-    //     // expect(ui.btns.request_chat.getAttribute('class')).toContain('disabled');
-    //     // expect(ui.btns.request_match.getAttribute('class')).toContain('disabled');
-    //   });
-    //
-    // });
 
     describe('has a method addInfoNewClient() that',function(){
       beforeEach(function(){
@@ -189,6 +160,7 @@
         ui.init(opts);
       });
       it('writes all connected users in the proper div',function(){
+        // this test is not good: you have to test if addInfoNewClient is called as much as data.user's length
         var el = $(allClientsContainer);
         var id1 = anotherUserId;
         var id2 = anotherUserId + 1;
@@ -215,7 +187,5 @@
         expect(userDiv[0]).not.toBeDefined();
       });
     });
-
   });
-
 })(window._chess.ui.main, /**/ _chess.socket.mainChannel, _chess.socket.connection,/**/ window._chess.lib.dom);
