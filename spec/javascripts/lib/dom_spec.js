@@ -41,31 +41,31 @@
         });
       });
 
-      describe('has method add and removePreventDefault that ',function(){ // has sense?
-        var elem = null;
-        beforeEach(function(){
-          elem = dom.id('btn');
-          dom.addPreventDefault(elem);
-        });
-        it('preventDefault an element',function(done){
-          var event = document.createEvent('HTMLEvents');
-          event.initEvent('click', true, true);
-          event.preventDefault = jasmine.createSpy();
-          elem.dispatchEvent(event);
-          setTimeout(function(){
-            expect(event.preventDefault).toHaveBeenCalled();
-            done();
-          },200);
-        });
-        it('and remove prevention',function(){
-          dom.removePreventDefault(elem);
-          var event = document.createEvent('HTMLEvents');
-          event.initEvent('click', true, true);
-          event.preventDefault = jasmine.createSpy();
-          elem.dispatchEvent(event);
-          expect(event.preventDefault).not.toHaveBeenCalled();
-        });
-      });
+      // describe('has method add and removePreventDefault that ',function(){ // has sense?
+      //   var elem = null;
+      //   beforeEach(function(){
+      //     elem = dom.id('btn');
+      //     dom.addPreventDefault(elem);
+      //   });
+      //   it('preventDefault an element',function(done){
+      //     var event = document.createEvent('HTMLEvents');
+      //     event.initEvent('click', true, true);
+      //     event.preventDefault = jasmine.createSpy();
+      //     elem.dispatchEvent(event);
+      //     setTimeout(function(){
+      //       expect(event.preventDefault).toHaveBeenCalled();
+      //       done();
+      //     },200);
+      //   });
+      //   it('and remove prevention',function(){
+      //     dom.removePreventDefault(elem);
+      //     var event = document.createEvent('HTMLEvents');
+      //     event.initEvent('click', true, true);
+      //     event.preventDefault = jasmine.createSpy();
+      //     elem.dispatchEvent(event);
+      //     expect(event.preventDefault).not.toHaveBeenCalled();
+      //   });
+      // });
 
       describe('createElement()',function(){
         var elem = null;
@@ -105,6 +105,24 @@
           event.initEvent('click', true, true);
           elem.dispatchEvent(event);
           // $(elem).click();
+        });
+      });
+
+      describe('has method insertElement() that', function(){
+        it('append new element', function(){
+          var target = dom.createElement('div', 'test-id');
+          var new_elem = dom.createElement('div', 'another-test-id');
+          dom.insertElement(new_elem,target);
+          expect(target.children[0] === new_elem).toEqual(true);
+        });
+      });
+
+      describe('has method insertInnerHTML() that', function(){
+        it('append new element', function(){
+          var target = dom.createElement('div', 'test-id');
+          var new_elem = '<div id="another-test-id"></div>';
+          dom.insertInnerHTML(new_elem,target);
+          expect(target.children[0].outerHTML === new_elem).toEqual(true);
         });
       });
     });

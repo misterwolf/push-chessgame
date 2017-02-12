@@ -8,4 +8,7 @@
 //= require socket/namespace
 //= require socket/Connection
 //= require socket/MainChannel
+//= require socket/ChatChannel
 //= require ui/Main
+//= require ui/Chat
+//= require ui/Modal

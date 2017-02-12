@@ -55,11 +55,20 @@
   }
 
   /**
-   * Insert HTML into DOM
+   * Insert HTML node into DOM
    * @param {nodes elements} nodes
    */
   dom.insertElement = function(element, target){
     target.appendChild(element);
+  };
+
+  // to test
+  /**
+   * Insert HTML node into DOM
+   * @param {nodes elements} nodes
+   */
+  dom.insertInnerHTML = function(string_element, target){
+    target.innerHTML = string_element;
   };
 
   /**
@@ -100,16 +109,56 @@
     obj.removeEventListener( type, fn, !!useCapture );
   };
 
-  var preventDefault = function(evt){
-    evt.preventDefault();
-  };
+  /**
+    * onReady function
+    * @param {function}     callback when DOM is ready
+    *
+    * @function
+    * @memberof _iub.jlib.dom
+    */
+  dom.ready = function(fn){
 
-  dom.addPreventDefault = function(elem){
-    dom.addEventListener(elem, 'click', preventDefault);
-  };
+    var done = false, top = true,
+    win = window,
+    doc = document,
+    root = doc.documentElement,
+    modern = doc.addEventListener,
 
-  dom.removePreventDefault = function(elem){
-    dom.removeEventListener(elem, 'click', preventDefault, true);
+    add = modern ? 'addEventListener' : 'attachEvent',
+    rem = modern ? 'removeEventListener' : 'detachEvent',
+    pre = modern ? '' : 'on',
+
+    init = function(e) {
+      if (e.type === 'readystatechange' && doc.readyState !== 'complete') {
+        return;
+      }
+      (e.type === 'load' ? win : doc)[rem](pre + e.type, init, false);
+      if (!done && (done = true)) {
+        fn.call(win, e.type || e);
+      }
+    },
+
+    poll = function() {
+      try { root.doScroll('left'); } catch (e) { setTimeout(poll, 50); return; }
+      init('poll');
+    };
+
+    if (doc.readyState === 'complete') {
+      fn.call(win, 'lazy');
+
+    } else {
+
+      if (!modern && root.doScroll) {
+        try { top = !win.frameElement; } catch (e) { }
+        if (top) {
+          poll();
+        }
+      }
+
+      doc[add](pre + 'DOMContentLoaded', init, false);
+      doc[add](pre + 'readystatechange', init, false);
+      window[add](pre + 'load', init, false);
+    }
   };
 
 })(window._chess.lib.dom = {});

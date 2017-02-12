@@ -8,10 +8,11 @@
 //= require socket/namespace
 //= require ui/namespace
 
-(function(ui, mainChannel, connection, lib){
+(function(main, modal, socket, lib){
   'use strict';
 
   var DIV_ID_CONNECT = 'connect-btn';
+  var MODAL = 'myModal';
   var DIV_ID_CLOSE = 'close-btn';
   var DIV_ID_REQUEST_MATCH = 'request-match-btn';
   var DIV_ID_REQUEST_CHAT = 'request-chat-btn';
@@ -21,77 +22,97 @@
   var MESSAGE_FOR_GOODBYE = 'Goodbye!';
   var DIV_ID_CONTAINER_ALL_CLIENTS = 'all-clients';
 
-  var currentUserId = null;
+  main.currentUser = null;
 
   var dom = lib.dom;
   var evtManager = lib.evtManager;
 
-  ui.mainChannel = mainChannel;
-  ui.connection = connection;
+  main.mainChannel = socket.mainChannel;
+  main.chatChannel = socket.chatChannel;
+  main.connection = socket.connection;
 
-  ui.btns = {};
+  main.btns = {};
 
-  ui.init = function(user, opts){
+  // COMMON HTML
+  main.init = function(user, opts){
     opts = opts || {};
 
-    currentUserId = user.id;
+    main.currentUser = user;
 
-    if (!currentUserId){
+    if (!main.currentUser){
       return null;
     }
 
-    ui.btns.connect = dom.id(DIV_ID_CONNECT);
-    ui.btns.close = dom.id(DIV_ID_CLOSE);
+    main.btns.connect = dom.id(DIV_ID_CONNECT);
+    main.btns.close = dom.id(DIV_ID_CLOSE);
+
+    // buttons = dom.createElement('div', null, 'buttons');
+
+    evtManager.set(main);    // establish connection with emit manager
+    main.on('all_clients_received',main.addInfoNewClients);
+    main.on('new_client_connected',main.addInfoNewClient);
+    main.on('client_disconnected', main.removeUser);
+    main.on('on_open',main.setInitialState);
 
     disableBtns();
-    enableBtn(ui.btns.connect);
-
-    dom.addEventListener(ui.btns.connect, 'click', bindConnect);
-    dom.addEventListener(ui.btns.close,   'click', setCloseState);
-
-    // move them in another channel file
-    // dom.addEventListener(ui.btns.request_chat, 'click', bindRequestChat);
-    // dom.addEventListener(ui.btns.request_match, 'click', bindRequestMatch);
-    // ui.btns.request_chat = dom.id(DIV_ID_REQUEST_MATCH);
-    // ui.btns.request_match = dom.id(DIV_ID_REQUEST_CHAT);
-
-    evtManager.set(ui);    // establish connection with emit manager
-    ui.on('all_clients_received',ui.addInfoNewClients);
-    ui.on('new_client_connected',ui.addInfoNewClient);
-    ui.on('client_disconnected', ui.removeUser);
-    ui.on('on_open',ui.setInitialState);
-
+    enableBtn(main.btns.connect);
+    dom.addEventListener(main.btns.connect, 'click', bindConnect);
+    dom.addEventListener(main.btns.close,   'click', setCloseState);
   };
 
-  ui.setInitialState = function(){
-    removeSpinner(ui.btns.connect);
+  main.setInitialState = function(){
+    removeSpinner(main.btns.connect);
     fillGeneralMessage(MESSAGE_FOR_WELCOME);
     enableBtns();
-    disableBtn(ui.btns.connect);
+    disableBtn(main.btns.connect);
   };
 
-  ui.addInfoNewClients = function(users){
+  main.addInfoNewClients = function(users){
     users = users || {};
     for (var user in users){
-      ui.addInfoNewClient(users[user]);
+      main.addInfoNewClient(users[user]);
     }
   };
 
-  ui.addInfoNewClient = function(user){
+  main.addInfoNewClient = function(user){
     user = user || {};
     addInfoUser(user);
   };
 
-  ui.removeUser = function(userId){
-    dom.remove( dom.id(userId) );
+  main.removeUser = function(userId){
+    dom.remove( dom.id('user-container-' + userId) );
   };
 
   // private methods
   var addInfoUser = function(user){
-    var elem = dom.createElement('div', user.id);
-    elem.innerHTML = user.name;
     var target = dom.id(DIV_ID_CONTAINER_ALL_CLIENTS);
-    dom.insertElement(elem,target);
+    var id = user.id;
+    var userId = user.id;
+    var userName = (main.currentUser.id != user.id ? user.name : 'you');
+    var buildButtons = (main.currentUser.id != user.id ? true : false);
+    // sigle container
+    var elem = '<div id="user-container-' + userId + '">' +
+                '<div class="user-info">' + userName + '</div>';
+    if (buildButtons) {
+      // buttons container
+      elem += '<div class="buttons">' +
+                '<div id="request-match-to-' + userId + '" class="btn request-match">' +
+                    'request match' +
+                '</div>' +
+               '<div id="request-chat-to-' + userId + '" class="btn request-chat">' +
+                   'request chat' +
+               '</div>' +
+              '</div>';
+    }
+    elem += '</div>';
+    // insert into general users container
+    target.insertAdjacentHTML( 'beforeend', elem );
+    // dom.insertInnerHTML(elem,target);
+    var requestBtn = dom.id('request-chat-to-' + user.id );
+    if (requestBtn){
+      dom.addEventListener(requestBtn, 'click', socket.chatChannel.requestChat.bind(main,user));
+      // dom.addEventListener(dom.id('request-match-to' + user.id ), 'click', main.chatChannel.requestMatch.bind(this,user, main.currentUser));
+    }
   };
 
   var fillGeneralMessage = function(msg){
@@ -119,37 +140,37 @@
   }
 
   function disableBtns(){
-    for (var btn in ui.btns){
-      disableBtn(ui.btns[btn]);
+    for (var btn in main.btns){
+      disableBtn(main.btns[btn]);
     }
   }
   function enableBtns(){
-    for (var btn in ui.btns){
-      enableBtn(ui.btns[btn]);
+    for (var btn in main.btns){
+      enableBtn(main.btns[btn]);
     }
   }
 
   function bindConnect(evt){
-    addSpinner(ui.btns.connect);
+    addSpinner(main.btns.connect);
     // in this way modules are indipendents:
-    ui.connection.start();
-    ui.mainChannel.start();
+    main.connection.start();
+    main.mainChannel.start();
+    main.chatChannel.start();
   }
 
   function setCloseState(evt){
     fillGeneralMessage(MESSAGE_FOR_GOODBYE);
-    addSpinner(ui.btns.close);
+    addSpinner(main.btns.close);
     emptyAllClients();
     disableBtns();
-    enableBtn(ui.btns.connect);
-    ui.mainChannel.closeConnection();
+    enableBtn(main.btns.connect);
+    main.mainChannel.closeConnection();
   }
-  // these two functions will be moved in another channel file
-  // function bindRequestChat(){
-  //   ui.mainChannel.requestChat();
-  // }
-  // function bindRequestMatch(){
-  //   ui.mainChannel.requestMatch();
-  // }
 
-})(window._chess.ui.main = {}, window._chess.socket.mainChannel, window._chess.socket.connection, window._chess.lib);
+  function closeModal(){
+    main.trigger('modal-closed'); // TO DO
+    modal.classList.add('disabled');
+    modal.classList.remove('enabled');
+  }
+
+})(window._chess.ui.main = {}, window._chess.ui.modal, window._chess.socket, window._chess.lib);

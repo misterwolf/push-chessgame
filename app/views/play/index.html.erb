@@ -19,11 +19,19 @@
       </div>
       <div id="on-receive-message"></div>
     </div>
+    <div id="chat-windows" class="col-sm-15">
+    </div>
 
 </div>
 <script>
+  function fn(){
     var user = {id: <%= current_user.id %>, name: '<%= current_user.name %>'};
     _chess.socket.connection.init({});
     _chess.socket.mainChannel.init(user, {});
+    _chess.socket.chatChannel.init(user, {});
     _chess.ui.main.init(user);
+    _chess.ui.modal.init();
+    _chess.ui.chat.init();
+  }
+  window._chess.lib.dom.ready(fn);
 </script>

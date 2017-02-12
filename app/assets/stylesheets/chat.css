@@ -1,0 +1,21 @@
+
+#chat-windows { padding: 10px;
+  position: absolute;
+  background: #aaa;
+  height: 200px;
+  border: 1px #000;
+  bottom: 0px;
+}
+
+.window-chat{
+
+}
+.chat-name {
+      background-color: #ccc
+}
+
+.chat-content {
+  margin: 10px;
+  background-color: #ccc;
+  height: 115px;
+}
