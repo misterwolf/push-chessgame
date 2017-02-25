@@ -61,10 +61,18 @@
   // BOTH ----------------
   chatChannel.sendReceiveChatMsg = function(data){
     if (data.userDest.id !== chatChannel.currentUser.id && data.msg.sent === 0){ // avoid to insert two time current user id
+      // SEND
       data.msg.sent = 1;
-      chatChannel.connection.channels.request_chat_channel.trigger('msg_channel', {userDest: data.userDest , userSender: chatChannel.currentUser, msg: data.msg }); // send
+      var dataToSend = {
+        userDest: data.userDest,
+        userSender: chatChannel.currentUser,
+        msg: data.msg
+      };
+      chatChannel.connection.channels.request_chat_channel.trigger('msg_channel', dataToSend);
+      chatChannel.trigger('own_msg_channel', dataToSend);
     } else {
-      chatChannel.trigger('msg_channel', data); // receive
+      // RECEIVE
+      chatChannel.trigger('msg_channel', data);
     }
   };
   // ------------------------

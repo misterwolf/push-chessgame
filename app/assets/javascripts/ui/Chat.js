@@ -22,6 +22,7 @@
     chat.on('chat_accepted', chat.chatAccepted);
     chat.on('chat_refused',  chat.chatRefused);
     chat.on('msg_channel',  chat.printMsg);
+    chat.on('own_msg_channel',  chat.printOwnMsg);
 
     chat.modal = ui.modal;
     chat.chatChannel = socket.chatChannel;
@@ -62,9 +63,19 @@
   // ------------------------
 
   // BOTH -------------------
+
+  chat.printOwnMsg = function(data){
+    var htmlString =
+        '<div class="msg right message-to-user-' + data.userSender.id + '">' +
+          data.msg.text +
+        '</div>';
+    var target = dom.id('chat-content-with-' + data.userSender.id);
+    target.insertAdjacentHTML( 'beforeend', htmlString );
+  };
+
   chat.printMsg = function(data){
     var htmlString =
-        '<div class="msg" id="message-from-user-' + data.userSender.id + '">' +
+        '<div class="msg left message-from-user-' + data.userSender.id + '">' +
           data.msg.text +
         '</div>';
     var target = dom.id('chat-content-with-' + data.userSender.id);
@@ -73,6 +84,7 @@
 
   chat.sendChatMsg = function(user){
     var chatMsg = dom.id('chat-message-for-' + user.id);
+    dom.id('chat-message-for-' + user.id).value = '';
     var msg = chatMsg.value;
     var data = {
       userDest: user,
@@ -95,8 +107,8 @@
             '<span id="send-msg-to-' + user.id + '"> send </span>' +
           '</div>' +
         '</div>';
-   dom.insertInnerHTML(htmlString, dom.id(ALL_CHAT_WINDOWS));
-   dom.addEventListener(dom.id('send-msg-to-' + user.id), 'click', function(){chat.sendChatMsg(user);});
+    dom.insertInnerHTML(htmlString, dom.id(ALL_CHAT_WINDOWS));
+    dom.addEventListener(dom.id('send-msg-to-' + user.id), 'click', function(){chat.sendChatMsg(user);});
   };
 
   chat.showModalForRequestChat = function(userRequester){

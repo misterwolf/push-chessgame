@@ -20,7 +20,7 @@
   };
 
   chat.chatChannel = {
-    sendChatMsg: jasmine.createSpy(),
+    sendReceiveChatMsg: jasmine.createSpy(),
     refuseChat: jasmine.createSpy()
   };
 
@@ -99,8 +99,18 @@
         }, 200);
       });
     });
-    describe('has a method sendMsg() that', function(){
-      it('comunicate with chat channel',function(){
+    describe('has a method sendChatMsg() that', function(){
+      it('removes message from input and call trigger',function(){
+        var inputTest = dom.createElement('div', 'chat-message-for-' + userTest.id, '');
+        dom.insertElement(inputTest,document.body);
+        dom.id('chat-message-for-' + userTest.id).value = 'tes-msg';
+        chat.sendChatMsg(userTest);
+        expect(dom.id('chat-message-for-' + userTest.id).value).toBe('');
+        expect(chat.chatChannel.sendReceiveChatMsg).toHaveBeenCalled();
+      });
+    });
+    describe('has a method printMsg() that', function(){
+      it('write both messages in window',function(){
 
       });
     });
