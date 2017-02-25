@@ -19,7 +19,10 @@
     }
   };
 
-  chat.chatChannel = { sendChatMsg: jasmine.createSpy() };
+  chat.chatChannel = {
+    sendChatMsg: jasmine.createSpy(),
+    refuseChat: jasmine.createSpy()
+  };
 
   var userTest = {name:'test', id:'id-test'};
 
@@ -30,7 +33,6 @@
     });
 
     describe('has a method init() that', function(){
-
       xit('handles specific events for chat',function(){
         chat.on('chat_requested',chat.showModalForRequestChat);
         chat.on('chat_accepted',chatAccepted);
@@ -45,9 +47,9 @@
 
     describe('has a method refuseChat() that', function(){
       it('hide modal and comunicate with chat channel',function(){
-        chat.sendChatMsg({data: {}});
-        chatChannel.sendChatMsg(data);
-        expect(chat.modal.sendChatMsg).toHaveBeenCalledWith({data: {}});
+        chat.refuseChat({data: {}});
+        expect(chat.modal.hide).toHaveBeenCalled();
+        expect(chat.chatChannel.refuseChat).toHaveBeenCalledWith({data: {}});
       });
     });
 

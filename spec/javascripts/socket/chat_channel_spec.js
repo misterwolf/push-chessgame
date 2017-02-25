@@ -14,6 +14,7 @@
   var connection = null;
   var user = {id:'test-id',name:'test-name'};
   var anotherUser = {id:'test-another-id',name:'test-name'};
+  var dataAcceptor =  {userDest: user, userAcceptor: anotherUser};
   var dataCurrentUser =  {userDest: user, userRequester: anotherUser};
   var dataAnotherUser =  {userDest: anotherUser, userRequester: user};
   var channel_name = 'channel_name',
@@ -63,7 +64,7 @@
       });
       it('notifies with chat_accepted',function(){
         spyOn(chatChannel,'trigger');
-        chatChannel.chatAccepted(dataCurrentUser);
+        chatChannel.chatAccepted(dataAcceptor);
         expect(chatChannel.trigger).toHaveBeenCalledWith('chat_accepted',anotherUser);
       });
     });
