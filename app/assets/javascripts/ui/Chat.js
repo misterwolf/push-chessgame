@@ -66,10 +66,10 @@
 
   chat.printOwnMsg = function(data){
     var htmlString =
-        '<div class="msg right message-to-user-' + data.userSender.id + '">' +
+        '<div class="msg right message-to-user-' + data.userDest.id + '">' +
           data.msg.text +
         '</div>';
-    var target = dom.id('chat-content-with-' + data.userSender.id);
+    var target = dom.id('chat-content-with-' + data.userDest.id);
     target.insertAdjacentHTML( 'beforeend', htmlString );
   };
 
@@ -84,7 +84,6 @@
 
   chat.sendChatMsg = function(user){
     var chatMsg = dom.id('chat-message-for-' + user.id);
-    dom.id('chat-message-for-' + user.id).value = '';
     var msg = chatMsg.value;
     var data = {
       userDest: user,
@@ -94,6 +93,7 @@
       }
     };
     chat.chatChannel.sendReceiveChatMsg(data);
+    dom.id('chat-message-for-' + user.id).value = '';
   };
   // ------------------------
 
