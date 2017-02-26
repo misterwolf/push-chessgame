@@ -10,8 +10,6 @@
 
   mainChannel.connection = connection;
   mainChannel.user = {};
-  mainChannel.callbacks = null;
-  mainChannel.currentUserId = null;
 
   evtManager.set(mainChannel);
 
@@ -90,9 +88,5 @@
     },200);
 
   };
-
-  // };
-
-  // window._chess.socket.MainSocket = MainSocket;
 
 })(window._chess.socket.mainChannel = {}, window._chess.socket.connection, window._chess.lib);
