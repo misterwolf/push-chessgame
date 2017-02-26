@@ -23,7 +23,7 @@
     chat.on('chat_refused',  chat.chatRefused);
     chat.on('msg_channel',  chat.printMsg);
     chat.on('own_msg_channel',  chat.printOwnMsg);
-
+    chat.allChatWindow = dom.id(ALL_CHAT_WINDOWS);
     chat.modal = ui.modal;
     chat.chatChannel = socket.chatChannel;
   };
@@ -107,7 +107,7 @@
             '<span id="send-msg-to-' + user.id + '"> send </span>' +
           '</div>' +
         '</div>';
-    dom.insertInnerHTML(htmlString, dom.id(ALL_CHAT_WINDOWS));
+    chat.allChatWindow.insertAdjacentHTML( 'beforeend', htmlString);
     dom.addEventListener(dom.id('send-msg-to-' + user.id), 'click', function(){chat.sendChatMsg(user);});
   };
 

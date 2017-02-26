@@ -109,7 +109,16 @@
         spyOn(chatChannel,'trigger');
         chatChannel.currentUser = anotherUser;
         chatChannel.chatAccepted(dataAnotherUser);
-        expect(chatChannel.trigger).toHaveBeenCalledWith('chat_accepted',dataAnotherUser.dataAcceptor);
+        expect(chatChannel.trigger).toHaveBeenCalledWith('chat_accepted',dataAnotherUser.dataRequester);
+      });
+      it('creates a channel specific for both user',function(){
+        chatChannel.currentUser = anotherUser;
+        chatChannel.chatAccepted(dataAcceptor);
+        expect(chatChannel.connection.subscribeChannel).toHaveBeenCalledWith(
+          'msg_chat_channel_' + dataAcceptor.userDest.id + '_' + dataAcceptor.userAcceptor.id,
+          'msg_channel',
+          chatChannel.sendReceiveChatMsg
+        );
       });
     });
 

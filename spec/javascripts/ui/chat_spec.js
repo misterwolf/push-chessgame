@@ -109,11 +109,6 @@
         expect(chat.chatChannel.sendReceiveChatMsg).toHaveBeenCalled();
       });
     });
-    describe('has a method printMsg() that', function(){
-      it('write both messages in window',function(){
-
-      });
-    });
     describe('has a method showModalForRequestChat() that', function(){
       var userRequester = {
         id:'test',
