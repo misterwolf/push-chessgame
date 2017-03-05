@@ -58,8 +58,8 @@
     dom.insertInnerHTML(htmlString, chat.modal.modalElem() );
     dom.addEventListener(dom.id('chat_accepted-ok'), 'click', function(e){
       chat.modal.hide();
-      chat.startChat(userAcceptor);
     });
+    chat.startChat(userAcceptor);
     chat.modal.show();
   };
   // ------------------------

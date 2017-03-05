@@ -10,7 +10,7 @@
   chatChannel.connection = connection;
   chatChannel.user = {};
   chatChannel.activeChats = [];
-  chatChannel.requestedChats = [];
+
   var evtManager = lib.evtManager;
   evtManager.set(chatChannel);
 
@@ -66,7 +66,7 @@
   };
   chatChannel.chatAccepted = function(data){
     if (data.userDest.id === chatChannel.currentUser.id){ // avoid to insert two time current user id
-      chatChannel.activeChats[data.userAcceptor.id] = data.chatChannelName;
+      chatChannel.activeChats[data.userAcceptor.id] = {channelName: data.chatChannelName, pending: false, completed: true};
       chatChannel.trigger('chat_accepted',data.userAcceptor); // acceptor == requester
       chatChannel.connection.subscribeChannel(
         data.chatChannelName,
