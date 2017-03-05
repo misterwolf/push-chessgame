@@ -110,7 +110,15 @@
           '</div>' +
         '</div>';
     chat.allChatWindow.insertAdjacentHTML( 'beforeend', htmlString);
-    dom.addEventListener(dom.id('send-msg-to-' + user.id), 'click', function(){chat.sendChatMsg(user);});
+    var sendMsgBtn = dom.id('send-msg-to-' + user.id);
+    var inputTxtMsg = dom.id('chat-message-for-' + user.id);
+    dom.addEventListener(sendMsgBtn, 'click', function(){chat.sendChatMsg(user);});
+    dom.addEventListener(inputTxtMsg, 'keyup', function(event) {
+      event.preventDefault();
+      if (event.keyCode == 13) {
+        chat.sendChatMsg(user);
+      }
+    });
   };
 
   chat.showModalForRequestChat = function(userRequester){

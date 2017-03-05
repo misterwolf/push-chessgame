@@ -111,7 +111,6 @@
     var requestBtn = dom.id('request-chat-to-' + user.id );
     if (requestBtn){
       dom.addEventListener(requestBtn, 'click', socket.chatChannel.requestChat.bind(main,user));
-      // dom.addEventListener(dom.id('request-match-to' + user.id ), 'click', main.chatChannel.requestMatch.bind(this,user, main.currentUser));
     }
   };
 
