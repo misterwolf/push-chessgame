@@ -16,9 +16,9 @@
   var anotherUser = {id:'test-another-id',name:'test-another-name'};
 
   var msgData = {msg: 'test-msg', sent: 0};
-  var dataAcceptor =  {userDest: user, userAcceptor: anotherUser, msg: msgData};
-  var dataCurrentUser =  {userDest: user, userRequester: anotherUser, msg: msgData};
-  var dataAnotherUser =  {userDest: anotherUser, userRequester: user, msg: msgData};
+  var dataAcceptor =      {userDest: user, userAcceptor: anotherUser, msg: msgData};
+  var dataCurrentUser =   {userDest: user, userRequester: anotherUser, msg: msgData};
+  var dataAnotherUser =   {userDest: anotherUser, userRequester: user, msg: msgData};
 
   var channel_name = 'channel_name',
     channel_event = 'event_example',
@@ -51,16 +51,53 @@
       });
     });
 
+    describe('has a method getActiveChats() that',function(){
+      xit('return active chat', function(){
+      });
+    });
+
+    describe('has a method requestChat() that',function(){
+      it('notifies to request_chat_channel and disables current button', function(){
+        chatChannel.currentUser = user;
+        chatChannel.requestChat(anotherUser);
+        expect(chatChannel.connection.channels.request_chat_channel.trigger).toHaveBeenCalledWith('chat_requested',
+          {
+            userDest: dataAnotherUser.userDest,
+            userRequester: chatChannel.currentUser
+          }
+        );
+      });
+      it('throws an error if chat already exist', function(){
+        chatChannel.activeChats[anotherUser.id] = {};
+        expect( function(){chatChannel.requestChat(anotherUser);} ).toThrow('You already started a chat with test-another-name');
+      });
+    });
+
+    describe('has a method acceptChat() that',function(){
+      it('triggers a message to the request_chat_channel and subscribe personal users channel',function(){
+        chatChannel.currentUser = user;
+        chatChannel.acceptChat(anotherUser);
+        expect(chatChannel.connection.channels.request_chat_channel.trigger).toHaveBeenCalledWith('chat_accepted',
+          {
+            userDest: dataAnotherUser.userDest,
+            userAcceptor: chatChannel.currentUser,
+            chatChannelName: 'msg_chat_channel_' + dataAnotherUser.userDest.id + '_' + chatChannel.currentUser.id
+          }
+        );
+      });
+    });
+
     describe('has a method sendReceiveChatMsg that',function(){
       describe('when user dest != current user', function(){
         beforeEach(function(){
           spyOn(chatChannel,'trigger');
           chatChannel.currentUser = user;
+          chatChannel.activeChats[dataAnotherUser.userDest.id] = 'example_chat';
+          chatChannel.connection.channels[chatChannel.activeChats[dataAnotherUser.userDest.id]] = {trigger: jasmine.createSpy()};
           chatChannel.sendReceiveChatMsg(dataAnotherUser);
         });
         it('trigger message to channel and stop propagation',function(){
-          chatChannel.sendReceiveChatMsg(dataAnotherUser);
-          expect(chatChannel.connection.channels.request_chat_channel.trigger).toHaveBeenCalledWith('msg_channel',
+          expect(chatChannel.connection.channels[chatChannel.activeChats[dataAnotherUser.userDest.id]].trigger).toHaveBeenCalledWith('msg_channel',
             {
               userDest: dataAnotherUser.userDest,
               userSender: chatChannel.currentUser,
@@ -107,18 +144,21 @@
       });
       it('calls the trigger with chat_accepted when user is current ',function(){
         spyOn(chatChannel,'trigger');
-        chatChannel.currentUser = anotherUser;
-        chatChannel.chatAccepted(dataAnotherUser);
-        expect(chatChannel.trigger).toHaveBeenCalledWith('chat_accepted',dataAnotherUser.dataRequester);
+        chatChannel.currentUser = user;
+        chatChannel.chatAccepted(dataAcceptor);
+        expect(chatChannel.trigger).toHaveBeenCalledWith('chat_accepted',dataAcceptor.userAcceptor);
       });
       it('creates a channel specific for both user',function(){
-        chatChannel.currentUser = anotherUser;
+        chatChannel.currentUser = user;
+        dataAcceptor.chatChannelName = 'msg_chat_channel_' + dataAcceptor.userDest.id + '_' + dataAcceptor.userAcceptor.id;
         chatChannel.chatAccepted(dataAcceptor);
+
         expect(chatChannel.connection.subscribeChannel).toHaveBeenCalledWith(
           'msg_chat_channel_' + dataAcceptor.userDest.id + '_' + dataAcceptor.userAcceptor.id,
           'msg_channel',
           chatChannel.sendReceiveChatMsg
         );
+        delete dataAcceptor.chatChannelName;
       });
     });
 

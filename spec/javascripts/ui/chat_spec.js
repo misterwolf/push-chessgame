@@ -9,20 +9,6 @@
 
 (function(chat, dom){
   'use strict';
-  chat.modal = {
-    init: jasmine.createSpy(),
-    show: jasmine.createSpy(),
-    hide: jasmine.createSpy(),
-    build: jasmine.createSpy(),
-    modalElem:  function(){
-      return dom.id('myModal');
-    }
-  };
-
-  chat.chatChannel = {
-    sendReceiveChatMsg: jasmine.createSpy(),
-    refuseChat: jasmine.createSpy()
-  };
 
   var userTest = {name:'test', id:'id-test'};
 
@@ -30,6 +16,19 @@
 
     beforeEach(function(){
       loadFixtures('ui/elements.html');
+      chat.modal = {
+        init: jasmine.createSpy(),
+        show: jasmine.createSpy(),
+        hide: jasmine.createSpy(),
+        build: jasmine.createSpy(),
+        modalElem:  function(){
+          return dom.id('myModal');
+        }
+      };
+      chat.chatChannel = {
+        sendReceiveChatMsg: jasmine.createSpy(),
+        refuseChat: jasmine.createSpy()
+      };
     });
 
     describe('has a method init() that', function(){
@@ -42,6 +41,11 @@
 
     describe('has a method acceptChat() that', function(){
       xit('hide modal comunicate with chat channel',function(){
+      });
+    });
+
+    describe('has a method requestChat() that', function(){
+      xit('disables button requestChat button for user',function(){
       });
     });
 
@@ -86,11 +90,13 @@
     });
     describe('has a method startChat() that', function(){
       it('shows chat window',function(){
+        chat.init();
         chat.startChat(userTest);
         expect($('#chat-container-with-' + userTest.id)).toBeDefined();
       });
       it('binds send message',function(done){
         spyOn(chat, 'sendChatMsg');
+        chat.init();
         chat.startChat(userTest);
         $('#send-msg-to-' + userTest.id).click();
         setTimeout(function(){

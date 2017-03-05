@@ -87,7 +87,7 @@
           expect(main.btns.close).toHaveClass('disabled');
         }
       });
-      describe('bind the button connect that', function(){
+      describe('binds the button connect that', function(){
         beforeEach(function(){
           loadFixtures('ui/elements.html');
           main.init(user, opts);
@@ -98,7 +98,7 @@
           expect(main.mainChannel.start).toHaveBeenCalled();
         });
       });
-      describe('bind the button close that', function(){
+      describe('binds the button close that', function(){
         beforeEach(function(){
           loadFixtures('ui/elements.html');
           main.init(user, opts);

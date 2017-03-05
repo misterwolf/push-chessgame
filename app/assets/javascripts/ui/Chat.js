@@ -13,6 +13,7 @@
   'use strict';
   var ALL_CHAT_WINDOWS = 'chat-windows';
   var dom = lib.dom;
+  chat.chatChannel = socket.chatChannel;
 
   chat.init = function(){
     var evtManager = lib.evtManager;
@@ -21,11 +22,12 @@
     chat.on('chat_requested',chat.showModalForRequestChat);
     chat.on('chat_accepted', chat.chatAccepted);
     chat.on('chat_refused',  chat.chatRefused);
-    chat.on('msg_channel',  chat.printMsg);
+    chat.on('msg_channel',   chat.printMsg);
     chat.on('own_msg_channel',  chat.printOwnMsg);
     chat.allChatWindow = dom.id(ALL_CHAT_WINDOWS);
-    chat.modal = ui.modal;
     chat.chatChannel = socket.chatChannel;
+
+    chat.modal = ui.modal;
   };
 
   // SEND in ----------------
