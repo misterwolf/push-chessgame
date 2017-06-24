@@ -46,21 +46,16 @@
   }
 
   connection.subscribeChannel = function(channelName,eventName,onTrigger){
-    // waitForState('connected', function(){
-      connection.channels[channelName] = connection.dispatcher.subscribe(channelName);
-      connection.channels[channelName].bind(eventName,onTrigger);
-    // });
-
+    connection.channels[channelName] = connection.dispatcher.subscribe(channelName);
+    connection.channels[channelName].bind(eventName,onTrigger);
   };
 
   connection.sendOnChannel = function(channel, params){
     params = params || {};
-    // setTimeout( function() { // why? there is come callback anywhere?
     waitForState('connected', function(){
         connection.channels[channel].trigger(params.event_name, params.message);
       }
     );
-
   };
 
   var waitForState = function( state, cb){
