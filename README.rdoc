@@ -1,11 +1,12 @@
 Push Chess Game
 
 A simple project that let you play to chess with another user online, trough the push notifications (with websocket-rails gem).
-Idea is:
-- list available users for playing
-- select your next challenger
-- wait until he/she accepts request
-- start to play (chat included)
+
+Current feature is
+ feature/restore_connection_chat_management
+  - make possible to store all the user messages in DB
+  - so if user start again chat, all the previous messages will appear
+  - NB: user each other will not ask again for accepting
 
 How to setup the development environment:
 
