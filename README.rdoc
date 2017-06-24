@@ -10,7 +10,7 @@ Idea is:
 How to setup the development environment:
 
 RVM
- install rvm (ref: https://rvm.io/rvm/install)
+ # install ref: https://rvm.io/rvm/install
  curl -L https://get.rvm.io | bash -s stable --ruby
 
 Ruby 2.2.3
