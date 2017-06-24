@@ -1,9 +1,8 @@
-# FIRST SET OF chatChannel
-class CreateChatChannelTable < ActiveRecord::Migration
+class CreateChatChannel < ActiveRecord::Migration
   def change
-    create_table :chat_channel_tables do |t|
+    create_table :chat_channel do |t|
 
-      t.string    :name,            unique: true
+      t.string    :name,               unique: true
       t.integer   :user_requester_id,  null: false
       t.integer   :user_acceptor_id,   null: false
       t.boolean   :user_requester_window_open,   default: true

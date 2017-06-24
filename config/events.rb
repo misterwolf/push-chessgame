@@ -16,7 +16,7 @@ WebsocketRails::EventMap.describe do
   #SUBSCRIBE :CHANNEL, TO => CONTROLLER, WITH_METHOD => CONTROLLER_ACTION
 
 
-  # there is not need to specify subscerition for channels
+  # there is not need to specify subscription for channels
   #
   # namespace :websocket_rails do
   #   subscribe :new_client_connected,  :to => SocketController, :with_method => :new_client_connected
@@ -24,4 +24,13 @@ WebsocketRails::EventMap.describe do
   #   # The :client_disconnected method is fired automatically when a client disconnects
   #   subscribe :client_disconnected,   :to => SocketController, :with_method => :client_disconnected
   # end
+
+  # Creating a map event controller because we need to interface with DB.
+  namespace :chat_channel do
+
+    subscribe :create, 'chat#create'
+    subscribe :update, 'chat#update'
+
+  end
+
 end
